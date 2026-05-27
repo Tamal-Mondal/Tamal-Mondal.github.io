@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#11182a" />
+    <title>Susmita: The keeper</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="game" aria-label="Susmita: The keeper">
+      <canvas id="gameCanvas" aria-label="Game area"></canvas>
+
+      <section class="topbar" aria-label="Game status">
+        <div>
+          <span class="eyebrow">Keeper Quest</span>
+          <h1>Susmita: The keeper</h1>
+        </div>
+        <div class="score-card" aria-label="Score">
+          <span>Score</span>
+          <strong id="scoreText">0</strong>
+        </div>
+      </section>
+
+      <section class="progress-panel" aria-label="Rescue progress">
+        <div class="progress-label">
+          <span id="relationshipText">Relationship meter</span>
+          <strong id="progressText">0%</strong>
+        </div>
+        <div class="progress-track">
+          <span id="progressBar"></span>
+        </div>
+      </section>
+
+      <section id="toast" class="toast" aria-live="polite">
+        <strong id="toastTitle">Ready?</strong>
+        <span id="toastText">Hold the relationship. Break the problems.</span>
+      </section>
+
+      <section class="touch-controls" aria-label="Move Susmita">
+        <button id="leftButton" type="button" aria-label="Move left">Left</button>
+        <button id="rightButton" type="button" aria-label="Move right">Right</button>
+      </section>
+
+      <section id="startOverlay" class="overlay overlay--visible" role="dialog" aria-modal="true" aria-labelledby="startTitle">
+        <div class="modal modal--start">
+          <span class="eyebrow">A game about distance, care, and one very determined birthday girl</span>
+          <h2 id="startTitle">Susmita: The keeper</h2>
+          <p>
+            Susmita is the keeper of the relationship. Tamal is trapped behind the daily problems at the top.
+            Move left and right, collect the caring moments, clear the difficult ones, and bring him home.
+          </p>
+          <div class="rules">
+            <span>3 love balls</span>
+            <span>combo scoring</span>
+            <span>rush moments</span>
+          </div>
+          <button id="startButton" class="primary-button" type="button">Start Rescue</button>
+        </div>
+      </section>
+
+      <section id="resultOverlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+        <div class="modal">
+          <span class="eyebrow" id="resultEyebrow">Rescue Complete</span>
+          <h2 id="resultTitle">Keeper Hero</h2>
+          <p id="resultMessage">Susmita rescued Tamal.</p>
+          <div class="result-grid" aria-label="Final score details">
+            <div>
+              <span>Final Score</span>
+              <strong id="finalScore">0</strong>
+            </div>
+            <div>
+              <span>Rank</span>
+              <strong id="finalRank">Cute Try</strong>
+            </div>
+            <div>
+              <span>Bonus</span>
+              <strong id="bonusText">0</strong>
+            </div>
+          </div>
+          <div class="love-note">
+            <p>
+              Some days bring low battery, missed calls, busy hours, tiny fights, and too much distance.
+              But every time you choose us, the wall gets weaker.
+            </p>
+            <p>
+              Susmita, you are the hero of this story, and Tamal is very, very lucky to be rescued by you.
+            </p>
+          </div>
+          <div class="actions">
+            <button id="restartButton" class="secondary-button" type="button">Play Again</button>
+            <button id="shareButton" class="primary-button" type="button">Copy Score</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="./game.js"></script>
+  </body>
+</html>

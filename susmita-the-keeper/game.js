@@ -25,40 +25,40 @@ const ui = {
 };
 
 const positiveBrickTypes = [
-  { label: "Food Order", points: 100, color: "#b8f7a3", detail: "food fixes more than hunger", kind: "positive" },
-  { label: "Flower", points: 100, color: "#ffc2dc", detail: "small gestures still bloom", kind: "positive" },
-  { label: "Good Call", points: 120, color: "#a9ddff", detail: "one call makes the distance smaller", kind: "positive" },
-  { label: "Video Call", points: 140, color: "#a7f3ff", detail: "seeing each other makes distance softer", kind: "positive" },
-  { label: "Ludo Night", points: 130, color: "#c7f4ff", detail: "a little game, a lot of togetherness", kind: "positive" },
-  { label: "Cute Text", points: 90, color: "#ffd3a8", detail: "one message can save the whole day", kind: "positive" },
-  { label: "Long Hug", points: 160, color: "#d8c7ff", detail: "some arguments end best without more words", kind: "positive" },
-  { label: "White Sauce Pasta", points: 150, color: "#fff2c6", detail: "comfort food, comfort heart", kind: "positive" },
-  { label: "Cooking Together", points: 160, color: "#d9f99d", detail: "two people, one kitchen, many memories", kind: "positive" },
-  { label: "Momos", points: 110, color: "#fde68a", detail: "small bites, big smiles", kind: "positive" },
-  { label: "Movie Plan", points: 110, color: "#b9f6d3", detail: "a shared screen, a shared mood", kind: "positive" },
-  { label: "Sorry First", points: 140, color: "#fff0a8", detail: "love wins when ego steps back", kind: "positive" },
-  { label: "Tea Break", points: 80, color: "#cce7ff", detail: "a pause together is still progress", kind: "positive" },
+  { label: "Food Order", points: 100, color: "#b8f7a3", detail: "Food Fixes More Than Hunger", kind: "positive" },
+  { label: "Flower", points: 100, color: "#ffc2dc", detail: "Small Gestures Still Bloom", kind: "positive" },
+  { label: "Good Call", points: 120, color: "#a9ddff", detail: "One Call Makes The Distance Smaller", kind: "positive" },
+  { label: "Video Call", points: 140, color: "#a7f3ff", detail: "Seeing Each Other Makes Distance Softer", kind: "positive" },
+  { label: "Ludo Night", points: 130, color: "#c7f4ff", detail: "A Little Game, A Lot Of Togetherness", kind: "positive" },
+  { label: "Cute Text", points: 90, color: "#ffd3a8", detail: "One Message Can Save The Whole Day", kind: "positive" },
+  { label: "Long Hug", points: 160, color: "#d8c7ff", detail: "Some Arguments End Best Without More Words", kind: "positive" },
+  { label: "White Sauce Pasta", points: 150, color: "#fff2c6", detail: "Comfort Food, Comfort Heart", kind: "positive" },
+  { label: "Cooking Together", points: 160, color: "#d9f99d", detail: "Two People, One Kitchen, Many Memories", kind: "positive" },
+  { label: "Momos", points: 110, color: "#fde68a", detail: "Small Bites, Big Smiles", kind: "positive" },
+  { label: "Movie Plan", points: 110, color: "#b9f6d3", detail: "A Shared Screen, A Shared Mood", kind: "positive" },
+  { label: "Sorry First", points: 140, color: "#fff0a8", detail: "Love Wins When Ego Steps Back", kind: "positive" },
+  { label: "Tea Break", points: 80, color: "#cce7ff", detail: "A Pause Together Is Still Progress", kind: "positive" },
 ];
 
 const negativeBrickTypes = [
-  { label: "Low Battery", points: -30, color: "#ff8a80", detail: "low energy asks for extra care", kind: "negative" },
-  { label: "No Data", points: -40, color: "#ff6b6b", detail: "no signal makes patience do the talking", kind: "negative" },
-  { label: "Missed Call", points: -35, color: "#ff7b72", detail: "one missed call should not become a whole story", kind: "negative" },
-  { label: "Busy Day", points: -30, color: "#ff9b8f", detail: "busy days still need tiny check-ins", kind: "negative" },
-  { label: "Mood Off", points: -45, color: "#ff6f61", detail: "bad moods need softness, not sparks", kind: "negative" },
-  { label: "Tiny Fight", points: -50, color: "#ef4444", detail: "tiny fights feel bigger when both are tired", kind: "negative" },
-  { label: "Overthinking", points: -75, color: "#dc2626", detail: "overthinking turns silence into noise", kind: "negative" },
-  { label: "Distance", points: -100, color: "#b91c1c", detail: "distance is harder on heavy days", kind: "negative" },
-  { label: "Late Reply", points: -35, color: "#fb7185", detail: "late replies need trust to stay small", kind: "negative" },
-  { label: "Sleepy Fight", points: -60, color: "#e11d48", detail: "sleepy fights should wait for morning", kind: "negative" },
+  { label: "Low Battery", points: -30, color: "#ff8a80", detail: "Low Energy Asks For Extra Care", kind: "negative" },
+  { label: "No Data", points: -40, color: "#ff6b6b", detail: "No Signal Makes Patience Do The Talking", kind: "negative" },
+  { label: "Missed Call", points: -35, color: "#ff7b72", detail: "One Missed Call Should Not Become A Whole Story", kind: "negative" },
+  { label: "Busy Day", points: -30, color: "#ff9b8f", detail: "Busy Days Still Need Tiny Check-Ins", kind: "negative" },
+  { label: "Mood Off", points: -45, color: "#ff6f61", detail: "Bad Moods Need Softness, Not Sparks", kind: "negative" },
+  { label: "Tiny Fight", points: -50, color: "#ef4444", detail: "Tiny Fights Feel Bigger When Both Are Tired", kind: "negative" },
+  { label: "Overthinking", points: -75, color: "#dc2626", detail: "Overthinking Turns Silence Into Noise", kind: "negative" },
+  { label: "Distance", points: -100, color: "#b91c1c", detail: "Distance Is Harder On Heavy Days", kind: "negative" },
+  { label: "Late Reply", points: -35, color: "#fb7185", detail: "Late Replies Need Trust To Stay Small", kind: "negative" },
+  { label: "Sleepy Fight", points: -60, color: "#e11d48", detail: "Sleepy Fights Should Wait For Morning", kind: "negative" },
 ];
 
 const immovableBrickTypes = [
-  { label: "Ego Wall", points: -80, color: "#4b5563", detail: "ego blocks the way until someone chooses softness", kind: "immovable" },
-  { label: "Silence", points: -100, color: "#374151", detail: "silence can feel louder than a fight", kind: "immovable" },
-  { label: "Assumption", points: -90, color: "#52525b", detail: "assumptions create stories love never wrote", kind: "immovable" },
-  { label: "Trust Wobble", points: -150, color: "#3f3f46", detail: "trust needs care, not panic", kind: "immovable" },
-  { label: "Trust Issues", points: -140, color: "#57534e", detail: "trust asks for patience, honesty, and repair", kind: "immovable" },
+  { label: "Ego Wall", points: -80, color: "#4b5563", detail: "Ego Blocks The Way Until Someone Chooses Softness", kind: "immovable" },
+  { label: "Silence", points: -100, color: "#374151", detail: "Silence Can Feel Louder Than A Fight", kind: "immovable" },
+  { label: "Assumption", points: -90, color: "#52525b", detail: "Assumptions Create Stories Love Never Wrote", kind: "immovable" },
+  { label: "Trust Wobble", points: -150, color: "#3f3f46", detail: "Trust Needs Care, Not Panic", kind: "immovable" },
+  { label: "Trust Issues", points: -140, color: "#57534e", detail: "Trust Asks For Patience, Honesty, And Repair", kind: "immovable" },
 ];
 
 const brickTypes = [...positiveBrickTypes, ...negativeBrickTypes];
@@ -132,6 +132,7 @@ const random = (min, max) => min + Math.random() * (max - min);
 const randomInt = (min, max) => Math.floor(random(min, max + 1));
 const isMobile = () => state.width < 760;
 const mobileScale = () => (isMobile() ? 0.78 : 1);
+const isProblemKind = (kind) => kind === "negative" || kind === "immovable";
 
 function shuffle(items) {
   const result = [...items];
@@ -146,7 +147,7 @@ function init() {
   bindEvents();
   resize();
   resetGame();
-  showToast("Ready?", "Collect care, clear problems, and protect the relationship.", 3600);
+  showToast("Ready?", "Collect Care, Clear Problems, And Protect The Relationship.", 3600);
   requestAnimationFrame(loop);
 }
 
@@ -306,6 +307,7 @@ function buildBricks() {
   const totalSlots = columns * rows;
   const typeBag = makeBrickTypeBag(totalSlots);
   const cage = makeCageLayout(columns, side, unitWidth, gap, top, baseHeight);
+  const columnProblemStreaks = Array(columns).fill(0);
   state.wallTop = top;
   state.wallBottom = top + rows * baseHeight + (rows - 1) * gap;
   state.tamal.x = cage.centerX;
@@ -327,11 +329,13 @@ function buildBricks() {
       const slotsLeft = (rows - row) * columns - col;
 
       if (isCagePocket(row, col, cage)) {
+        columnProblemStreaks[col] = 0;
         col += 1;
         continue;
       }
 
       if (canSkip && typeBag.length < slotsLeft - 2 && Math.random() < 0.07) {
+        columnProblemStreaks[col] = 0;
         col += 1;
         continue;
       }
@@ -343,7 +347,8 @@ function buildBricks() {
       const nearCenter = !sideRisk && !pathSlot && !cageRequired;
       const canSpan = !pathSlot && !cageRequired && remaining > 1 && !isEdge && typeBag.length < slotsLeft && Math.random() < 0.24;
       const span = canSpan ? randomInt(1, Math.min(2, remaining)) : 1;
-      let type = takeTypeForSlot(typeBag, { row, pathSlot, cageRequired, sideRisk, nearCenter });
+      const problemStreak = getMaxProblemStreak(columnProblemStreaks, col, span);
+      let type = takeTypeForSlot(typeBag, { row, pathSlot, cageRequired, sideRisk, nearCenter, problemStreak });
 
       if (!type) {
         col += span;
@@ -379,6 +384,7 @@ function buildBricks() {
         wobble: random(0, Math.PI * 2),
       });
 
+      updateColumnProblemStreaks(columnProblemStreaks, col, span, type.kind);
       col += span;
     }
   }
@@ -424,7 +430,25 @@ function isSideRiskSlot(col, cage) {
   return col < cage.pocketStart - 1 || col > cage.pocketEnd + 1;
 }
 
-function takeTypeForSlot(typeBag, { row, pathSlot, cageRequired, sideRisk, nearCenter }) {
+function getMaxProblemStreak(streaks, col, span) {
+  let max = 0;
+
+  for (let offset = 0; offset < span; offset += 1) {
+    max = Math.max(max, streaks[col + offset] || 0);
+  }
+
+  return max;
+}
+
+function updateColumnProblemStreaks(streaks, col, span, kind) {
+  const next = isProblemKind(kind) ? 1 : 0;
+
+  for (let offset = 0; offset < span; offset += 1) {
+    streaks[col + offset] = next ? (streaks[col + offset] || 0) + 1 : 0;
+  }
+}
+
+function takeTypeForSlot(typeBag, { row, pathSlot, cageRequired, sideRisk, nearCenter, problemStreak }) {
   if (row <= 1 && !sideRisk && Math.random() < 0.74) {
     const topReward = takeTopRewardType(typeBag);
 
@@ -440,11 +464,17 @@ function takeTypeForSlot(typeBag, { row, pathSlot, cageRequired, sideRisk, nearC
   }
 
   if (sideRisk) {
+    if (problemStreak > 0) {
+      const positiveBreak = takeTypeByKinds(typeBag, ["positive"]);
+
+      if (positiveBreak) return positiveBreak;
+    }
+
     const roll = Math.random();
     const balancedSideType =
-      roll < 0.46
+      roll < 0.68
         ? takeTypeByKinds(typeBag, ["positive"])
-        : roll < 0.86
+        : roll < 0.92
           ? takeTypeByKinds(typeBag, ["negative"])
           : takeTypeByKinds(typeBag, ["immovable"]);
 
@@ -551,7 +581,7 @@ function startGame() {
   if (state.over) return;
   state.running = true;
   state.last = performance.now();
-  showToast("Go Susmita", "Tap or press space to release the heart-ball.", 2800);
+  showToast("Go Susmita", "Tap Or Press Space To Release The Heart-Ball.", 2800);
 }
 
 function launchBall() {
@@ -601,14 +631,14 @@ function updateRush(dt) {
     !state.tamal.falling
   ) {
     state.rushWarned = true;
-    showToast("Rush Zone", "Speed burst incoming. Stay with the heart.", 1300);
+    showToast("Rush Zone", "Speed Burst Incoming. Stay With The Heart.", 1300);
   }
 
   if (state.elapsed > state.nextRushAt && !state.ball.attached && !state.tamal.falling) {
     state.rushTimer = random(2.2, 3.4);
     state.nextRushAt = state.elapsed + random(6.5, 10.5);
     state.rushWarned = false;
-    showToast("Rush Burst", "The day got chaotic. Hold steady.", 1600);
+    showToast("Rush Burst", "The Day Got Chaotic. Hold Steady.", 1600);
   }
 }
 
@@ -769,7 +799,7 @@ function collideWithSusmita() {
       const comboBonus = state.combo * 50;
       state.score += comboBonus;
       addFloatingText(`Combo +${comboBonus}`, ball.x, ball.y - 20, palette.gold);
-      showToast("Combo kept", `${state.combo} problems in one run. +${comboBonus}`, 1400);
+      showToast("Combo Kept", `${state.combo} Problems In One Run. +${comboBonus}`, 1400);
     }
 
     state.combo = 0;
@@ -861,7 +891,7 @@ function handleBrickHit(brick) {
     return;
   }
 
-  addFloatingText("crack", brick.x + brick.width / 2, brick.y + brick.height / 2, palette.muted);
+  addFloatingText("Crack", brick.x + brick.width / 2, brick.y + brick.height / 2, palette.muted);
   burst(brick.x + brick.width / 2, brick.y + brick.height / 2, brick.type.color, 8);
 }
 
@@ -920,7 +950,7 @@ function rescueTamal() {
   state.rescueBonus = 500;
   state.chanceBonus = state.chances * 300;
   state.score += state.rescueBonus + state.chanceBonus;
-  showToast("Tamal is free", "Susmita cleared the way. Hug incoming.", 2600);
+  showToast("Tamal Is Free", "Susmita Cleared The Way. Hug Incoming.", 2600);
   burst(state.tamal.x, state.tamal.y + 32, palette.gold, 60);
 }
 
@@ -961,12 +991,12 @@ function loseChance() {
   if (state.chances <= 0) {
     state.over = true;
     state.running = false;
-    showToast("Almost", "The wall is still there, but love gets rematches.", 1200);
+    showToast("Almost", "The Wall Is Still There, But Love Gets Rematches.", 1200);
     setTimeout(showResult, 900);
     return;
   }
 
-  showToast("Love ball used", `${state.chances} love ball${state.chances === 1 ? "" : "s"} left. Bring him back.`, 1800);
+  showToast("Love Ball Used", `${state.chances} Love Ball${state.chances === 1 ? "" : "s"} Left. Bring Him Back.`, 1800);
 }
 
 function showResult() {
@@ -974,8 +1004,8 @@ function showResult() {
   ui.resultEyebrow.textContent = state.won ? "Rescue Complete" : "Try Again";
   ui.resultTitle.textContent = rank;
   ui.resultMessage.textContent = state.won
-    ? "Susmita rescued Tamal and protected the relationship."
-    : "Tamal is still waiting, but the next rescue starts stronger.";
+    ? "Susmita Rescued Tamal And Protected The Relationship."
+    : "Tamal Is Still Waiting, But The Next Rescue Starts Stronger.";
   ui.finalScore.textContent = String(state.score);
   ui.finalRank.textContent = rank;
   ui.bonusText.textContent = `+${state.rescueBonus + state.chanceBonus}`;
@@ -987,7 +1017,7 @@ function getRank(score) {
 }
 
 async function copyScore() {
-  const text = `Susmita: The keeper: ${state.score} points, ${getRank(state.score)}. Best combo: ${state.bestCombo}.`;
+  const text = `Susmita: The Keeper: ${state.score} Points, ${getRank(state.score)}. Best Combo: ${state.bestCombo}.`;
 
   try {
     await navigator.clipboard.writeText(text);
@@ -1058,7 +1088,7 @@ function updateUi() {
   ui.scoreText.textContent = String(state.score);
   ui.progressText.textContent = `${Math.round(progress * 100)}%`;
   ui.progressBar.style.width = `${progress * 100}%`;
-  ui.relationshipText.textContent = state.rushTimer > 0 ? "Relationship meter under rush" : "Relationship meter";
+  ui.relationshipText.textContent = state.rushTimer > 0 ? "Relationship Meter Under Rush" : "Relationship Meter";
 }
 
 function draw() {
@@ -1194,7 +1224,7 @@ function drawTamalCharacter(x, y, trapped, hug = 0) {
   drawCharacterHead("#f4c7a1");
   drawHair("male");
   drawFace(trapped ? "worried" : "happy");
-  drawCharacterLabel(trapped ? "Tamal trapped" : "Tamal", 68);
+  drawCharacterLabel(trapped ? "Tamal Trapped" : "Tamal", 68);
   ctx.restore();
 }
 

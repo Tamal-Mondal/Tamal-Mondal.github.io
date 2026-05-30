@@ -107,9 +107,9 @@ const state = {
   fallPath: { left: 0, right: 0, top: 0, bottom: 0 },
   shake: 0,
   input: { left: false, right: false, pointer: false, pointerX: 0 },
-  susmita: { x: 0, y: 0, width: 116, height: 22, speed: 560 },
+  susmita: { x: 0, y: 0, vx: 0, width: 116, height: 22, speed: 560 },
   tamal: { x: 0, y: 0, free: false, falling: false, hug: 0 },
-  ball: { x: 0, y: 0, vx: 0, vy: 0, radius: 11, attached: true },
+  ball: { x: 0, y: 0, vx: 0, vy: 0, speed: 0, horizontalTime: 0, radius: 11, attached: true },
   bricks: [],
   particles: [],
   floatingText: [],
@@ -231,7 +231,7 @@ function resize() {
   state.susmita.width = clamp(state.width * 0.28, 96, 146);
   state.susmita.height = 22;
   state.susmita.x = clamp(state.susmita.x || state.width / 2, state.susmita.width / 2 + 12, state.width - state.susmita.width / 2 - 12);
-  state.susmita.y = state.height - (state.width < 760 ? 136 : 82);
+  state.susmita.y = state.height - (state.width < 760 ? 118 : 82);
   if (!state.bricks.length) {
     state.tamal.x = state.width / 2;
     state.tamal.y = Math.max(162, state.height * 0.22);
@@ -277,11 +277,14 @@ function resetGame() {
   state.tamal.falling = false;
   state.tamal.hug = 0;
   state.susmita.x = state.width / 2;
+  state.susmita.vx = 0;
   state.ball.attached = true;
   state.ball.x = state.susmita.x;
   state.ball.y = state.susmita.y - 24;
   state.ball.vx = 0;
   state.ball.vy = 0;
+  state.ball.speed = 0;
+  state.ball.horizontalTime = 0;
   state.bricks = buildBricks();
   state.rescueTarget = getPathBricks().length;
   state.positiveTotal = getTotalPositivePoints();
@@ -306,9 +309,10 @@ function buildBricks() {
   const rows = state.width < 420 ? randomInt(9, 10) : state.width < 720 ? randomInt(8, 9) : randomInt(8, 10);
   const gap = randomInt(4, 6);
   const side = 16;
-  const top = Math.max(112, state.height * random(0.13, 0.15));
+  const minTop = state.width < 760 ? 152 : 112;
+  const top = Math.max(minTop, state.height * random(0.13, 0.15));
   const unitWidth = (state.width - side * 2 - gap * (columns - 1)) / columns;
-  const baseHeight = clamp(state.height * random(0.036, 0.044), 28, 40);
+  const baseHeight = clamp(state.height * random(0.036, 0.044), state.width < 420 ? 24 : 28, 40);
   const bricks = [];
   const totalSlots = columns * rows;
   const typeBag = makeBrickTypeBag(totalSlots);
@@ -548,6 +552,8 @@ function launchBall() {
   const direction = random(-0.48, 0.48);
   const speed = currentSpeed();
   state.ball.attached = false;
+  state.ball.speed = speed;
+  state.ball.horizontalTime = 0;
   state.ball.vx = direction * speed;
   state.ball.vy = -speed;
   state.combo = 0;
@@ -594,14 +600,13 @@ function updateRush(dt) {
     state.rushTimer = random(2.2, 3.4);
     state.nextRushAt = state.elapsed + random(6.5, 10.5);
     state.rushWarned = false;
-    normalizeBallVelocity(currentSpeed());
     showToast("Rush Burst", "The day got chaotic. Hold steady.", 1600);
   }
 }
 
 function currentSpeed() {
-  const base = (380 + Math.min(210, state.elapsed * 7.2)) * state.difficulty;
-  return state.rushTimer > 0 ? base * 1.72 : base;
+  const base = (410 + Math.min(215, state.elapsed * 7.4)) * state.difficulty;
+  return state.rushTimer > 0 ? base * 1.62 : base;
 }
 
 function updateSusmita(dt) {
@@ -609,19 +614,35 @@ function updateSusmita(dt) {
   if (state.input.left) target -= 1;
   if (state.input.right) target += 1;
 
-  const rushAssist = state.rushTimer > 0 ? 1.34 : 1;
+  const rushAssist = state.rushTimer > 0 ? 1.4 : 1;
+  const maxSpeed = state.susmita.speed * rushAssist;
+  let desiredVelocity = target * maxSpeed;
 
   if (state.input.pointer) {
-    state.susmita.x = lerp(state.susmita.x, state.input.pointerX, clamp(dt * 11 * rushAssist, 0, 1));
-  } else {
-    state.susmita.x += target * state.susmita.speed * rushAssist * dt;
+    const pointerTarget = clamp(
+      state.input.pointerX,
+      state.susmita.width / 2 + 12,
+      state.width - state.susmita.width / 2 - 12,
+    );
+    desiredVelocity = clamp((pointerTarget - state.susmita.x) * 9.5, -maxSpeed, maxSpeed);
   }
+
+  const easing = target || state.input.pointer ? 12 : 7;
+  state.susmita.vx = lerp(state.susmita.vx, desiredVelocity, clamp(dt * easing, 0, 1));
+  state.susmita.x += state.susmita.vx * dt;
 
   state.susmita.x = clamp(
     state.susmita.x,
     state.susmita.width / 2 + 12,
     state.width - state.susmita.width / 2 - 12,
   );
+
+  if (
+    (state.susmita.x <= state.susmita.width / 2 + 12 && state.susmita.vx < 0) ||
+    (state.susmita.x >= state.width - state.susmita.width / 2 - 12 && state.susmita.vx > 0)
+  ) {
+    state.susmita.vx = 0;
+  }
 
   if (state.ball.attached) {
     state.ball.x = state.susmita.x;
@@ -634,9 +655,10 @@ function updateBall(dt) {
   if (ball.attached || state.tamal.falling) return;
 
   const speed = currentSpeed();
-  normalizeBallVelocity(speed);
+  const easedSpeed = updateBallSpeed(dt, speed);
+  normalizeBallVelocity(easedSpeed);
   preventHorizontalStall(dt);
-  const steps = Math.max(1, Math.ceil((speed * dt) / 6));
+  const steps = Math.max(1, Math.ceil((easedSpeed * dt) / 5));
   const stepDt = dt / steps;
 
   for (let step = 0; step < steps; step += 1) {
@@ -672,8 +694,16 @@ function updateBall(dt) {
     }
   }
 
-  normalizeBallVelocity(currentSpeed());
+  normalizeBallVelocity(state.ball.speed || easedSpeed);
   preventHorizontalStall(dt);
+}
+
+function updateBallSpeed(dt, targetSpeed) {
+  const ball = state.ball;
+  const current = ball.speed || Math.hypot(ball.vx, ball.vy) || targetSpeed;
+  const ramp = targetSpeed > current ? 3.2 : 2.5;
+  ball.speed = lerp(current, targetSpeed, clamp(dt * ramp, 0, 1));
+  return ball.speed;
 }
 
 function normalizeBallVelocity(speed) {
@@ -681,25 +711,21 @@ function normalizeBallVelocity(speed) {
   const length = Math.hypot(ball.vx, ball.vy) || 1;
   ball.vx = (ball.vx / length) * speed;
   ball.vy = (ball.vy / length) * speed;
-
-  if (Math.abs(ball.vy) < speed * 0.34) {
-    const direction = ball.vy < 0 ? -1 : 1;
-    ball.vy = direction * speed * 0.34;
-    const xDirection = ball.vx < 0 ? -1 : 1;
-    ball.vx = xDirection * Math.sqrt(Math.max(speed * speed - ball.vy * ball.vy, speed * speed * 0.48));
-  }
 }
 
 function preventHorizontalStall(dt) {
   const ball = state.ball;
   const speed = Math.hypot(ball.vx, ball.vy) || currentSpeed();
-  const minVertical = speed * 0.38;
+  const minVertical = speed * 0.4;
+  const nearlyHorizontal = Math.abs(ball.vy) < speed * 0.32;
+  ball.horizontalTime = nearlyHorizontal ? ball.horizontalTime + dt : 0;
 
-  if (Math.abs(ball.vy) >= minVertical) return;
+  if (Math.abs(ball.vy) >= minVertical && ball.horizontalTime < 0.3) return;
 
-  const direction = ball.vy < 0 ? -1 : 1;
-  const correction = minVertical * clamp(dt * 12, 0.18, 0.55);
-  ball.vy += direction * correction;
+  const needsDownwardNudge = ball.horizontalTime > 0.26 && ball.y < state.susmita.y - 44;
+  const direction = needsDownwardNudge ? 1 : ball.vy < 0 ? -1 : 1;
+  const desiredVy = direction * minVertical;
+  ball.vy = lerp(ball.vy, desiredVy, clamp(dt * 5.5, 0.05, 0.24));
 
   const xDirection = ball.vx < 0 ? -1 : 1;
   ball.vy = clamp(ball.vy, -speed * 0.88, speed * 0.88);
@@ -721,7 +747,9 @@ function collideWithSusmita() {
     ball.x <= right + ball.radius
   ) {
     const offset = (ball.x - paddle.x) / (paddle.width / 2);
-    const speed = currentSpeed();
+    const speed = state.ball.speed || currentSpeed();
+    state.ball.speed = speed;
+    state.ball.horizontalTime = 0;
     ball.y = top - ball.radius;
     ball.vx = offset * speed * 0.74;
     ball.vy = -Math.sqrt(Math.max(speed * speed - ball.vx * ball.vx, speed * speed * 0.42));
@@ -916,6 +944,8 @@ function loseChance() {
   state.ball.y = state.susmita.y - 25;
   state.ball.vx = 0;
   state.ball.vy = 0;
+  state.ball.speed = 0;
+  state.ball.horizontalTime = 0;
 
   if (state.chances <= 0) {
     state.over = true;

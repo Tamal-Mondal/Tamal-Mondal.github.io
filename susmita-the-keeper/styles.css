@@ -40,8 +40,8 @@ button {
 .game {
   position: relative;
   width: 100vw;
-  height: 100vh;
-  min-height: 600px;
+  height: 100dvh;
+  min-height: min(600px, 100dvh);
   overflow: hidden;
   background:
     radial-gradient(circle at 18% 18%, rgba(255, 111, 97, 0.24), transparent 27%),
@@ -72,8 +72,8 @@ button {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
   align-items: center;
-  padding: 9px;
-  min-height: 58px;
+  padding: 7px 8px;
+  min-height: 48px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--panel);
@@ -83,7 +83,7 @@ button {
 
 .eyebrow {
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
   color: var(--gold);
   font-size: 0.68rem;
   font-weight: 900;
@@ -111,8 +111,8 @@ h2 {
 }
 
 .score-card {
-  min-width: 70px;
-  padding: 6px 8px;
+  min-width: 64px;
+  padding: 5px 7px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.08);
@@ -130,15 +130,15 @@ h2 {
 .score-card strong {
   display: block;
   margin-top: 1px;
-  font-size: 0.98rem;
+  font-size: 0.94rem;
 }
 
 .progress-panel {
-  top: calc(max(10px, env(safe-area-inset-top)) + 62px);
+  top: calc(max(10px, env(safe-area-inset-top)) + 52px);
   left: 10px;
   right: 10px;
-  padding: 8px 10px;
-  min-height: 58px;
+  padding: 7px 9px;
+  min-height: 44px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: rgba(15, 22, 38, 0.68);
@@ -209,25 +209,37 @@ h2 {
 }
 
 .touch-controls {
-  left: 14px;
-  right: 14px;
-  bottom: max(14px, env(safe-area-inset-bottom));
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  height: 64px;
+  left: 0;
+  right: 0;
+  bottom: calc(148px + env(safe-area-inset-bottom));
+  display: block;
+  height: 58px;
+  pointer-events: none;
 }
 
 .touch-controls button {
+  position: absolute;
+  top: 0;
+  width: 58px;
+  height: 58px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(15, 22, 38, 0.5);
   color: transparent;
   cursor: pointer;
+  pointer-events: auto;
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
   backdrop-filter: blur(12px);
+}
+
+#leftButton {
+  left: 16px;
+}
+
+#rightButton {
+  right: 16px;
 }
 
 .touch-controls button::before {
@@ -265,7 +277,7 @@ h2 {
 
 .modal {
   width: min(720px, 100%);
-  max-height: calc(100vh - 36px);
+  max-height: calc(100dvh - 36px);
   overflow: auto;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -371,6 +383,8 @@ h2 {
     left: 22px;
     right: auto;
     width: min(430px, calc(52vw - 44px));
+    padding: 9px;
+    min-height: 58px;
   }
 
   .progress-panel {
@@ -393,24 +407,128 @@ h2 {
 }
 
 @media (max-width: 460px) {
+  .topbar {
+    top: max(8px, env(safe-area-inset-top));
+    left: 8px;
+    right: 8px;
+    gap: 6px;
+    padding: 6px 7px;
+    min-height: 44px;
+  }
+
   .eyebrow {
-    font-size: 0.6rem;
+    font-size: 0.54rem;
   }
 
   h1 {
-    font-size: 0.96rem;
+    font-size: 0.9rem;
+  }
+
+  h2 {
+    font-size: clamp(2rem, 10vw, 3.15rem);
+    line-height: 0.96;
   }
 
   .score-card {
-    min-width: 62px;
-    padding: 5px 7px;
+    min-width: 56px;
+    padding: 4px 6px;
+  }
+
+  .score-card span {
+    font-size: 0.64rem;
+  }
+
+  .score-card strong {
+    font-size: 0.84rem;
+  }
+
+  .progress-panel {
+    top: calc(max(8px, env(safe-area-inset-top)) + 48px);
+    left: 8px;
+    right: 8px;
+    padding: 6px 8px;
+    min-height: 40px;
+  }
+
+  .progress-label {
+    font-size: 0.68rem;
+  }
+
+  .progress-track {
+    height: 5px;
+    margin-top: 4px;
+  }
+
+  .touch-controls {
+    bottom: calc(142px + env(safe-area-inset-bottom));
+    height: 54px;
+  }
+
+  .touch-controls button {
+    width: 54px;
+    height: 54px;
+  }
+
+  #leftButton {
+    left: 12px;
+  }
+
+  #rightButton {
+    right: 12px;
+  }
+
+  .touch-controls button::before {
+    font-size: 1.55rem;
+  }
+
+  .toast {
+    left: 12px;
+    right: 12px;
+    bottom: calc(70px + env(safe-area-inset-bottom));
+    padding: 9px 10px;
+  }
+
+  .toast strong {
+    font-size: 0.84rem;
+  }
+
+  .toast span {
+    font-size: 0.82rem;
+  }
+
+  .overlay {
+    padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
   }
 
   .result-grid {
     grid-template-columns: 1fr;
+    gap: 8px;
+    margin: 16px 0;
   }
 
   .modal {
-    padding: 22px;
+    width: calc(100vw - 24px);
+    max-height: calc(100dvh - 24px);
+    padding: 18px;
+  }
+
+  .modal p {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    line-height: 1.45;
+  }
+
+  .result-grid div {
+    padding: 10px 12px;
+  }
+
+  .love-note {
+    margin-bottom: 16px;
+  }
+
+  .primary-button,
+  .secondary-button {
+    min-height: 44px;
+    padding: 0 14px;
   }
 }

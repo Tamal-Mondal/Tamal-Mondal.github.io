@@ -22,8 +22,6 @@ const ui = {
   bonusText: document.querySelector("#bonusText"),
   restartButton: document.querySelector("#restartButton"),
   shareButton: document.querySelector("#shareButton"),
-  leftButton: document.querySelector("#leftButton"),
-  rightButton: document.querySelector("#rightButton"),
 };
 
 const positiveBrickTypes = [
@@ -132,6 +130,8 @@ const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 const random = (min, max) => min + Math.random() * (max - min);
 const randomInt = (min, max) => Math.floor(random(min, max + 1));
+const isMobile = () => state.width < 760;
+const mobileScale = () => (isMobile() ? 0.78 : 1);
 
 function shuffle(items) {
   const result = [...items];
@@ -202,20 +202,6 @@ function bindEvents() {
     state.input.pointer = false;
   });
 
-  bindHoldButton(ui.leftButton, "left");
-  bindHoldButton(ui.rightButton, "right");
-}
-
-function bindHoldButton(button, direction) {
-  const set = (value) => {
-    state.input[direction] = value;
-    if (value) launchBall();
-  };
-
-  button.addEventListener("pointerdown", () => set(true));
-  button.addEventListener("pointerup", () => set(false));
-  button.addEventListener("pointercancel", () => set(false));
-  button.addEventListener("pointerleave", () => set(false));
 }
 
 function resize() {
@@ -228,10 +214,11 @@ function resize() {
   canvas.style.height = `${state.height}px`;
   ctx.setTransform(state.ratio, 0, 0, state.ratio, 0, 0);
 
-  state.susmita.width = clamp(state.width * 0.28, 96, 146);
-  state.susmita.height = 22;
+  state.susmita.width = isMobile() ? clamp(state.width * 0.22, 78, 104) : clamp(state.width * 0.28, 96, 146);
+  state.susmita.height = isMobile() ? 16 : 22;
+  state.ball.radius = isMobile() ? 9 : 11;
   state.susmita.x = clamp(state.susmita.x || state.width / 2, state.susmita.width / 2 + 12, state.width - state.susmita.width / 2 - 12);
-  state.susmita.y = state.height - (state.width < 760 ? 118 : 82);
+  state.susmita.y = state.height - (isMobile() ? 68 : 82);
   if (!state.bricks.length) {
     state.tamal.x = state.width / 2;
     state.tamal.y = Math.max(162, state.height * 0.22);
@@ -304,15 +291,17 @@ function getTotalPositivePoints() {
 }
 
 function buildBricks() {
-  const baseColumns = state.width < 420 ? 5 : state.width < 720 ? 6 : 9;
-  const columns = clamp(baseColumns + randomInt(0, 1), state.width < 420 ? 5 : 6, state.width < 720 ? 7 : 10);
-  const rows = state.width < 420 ? randomInt(9, 10) : state.width < 720 ? randomInt(8, 9) : randomInt(8, 10);
-  const gap = randomInt(4, 6);
-  const side = 16;
-  const minTop = state.width < 760 ? 152 : 112;
+  const baseColumns = state.width < 420 ? 6 : state.width < 720 ? 7 : 9;
+  const columns = clamp(baseColumns + randomInt(0, 1), state.width < 420 ? 6 : 7, state.width < 720 ? 8 : 10);
+  const rows = state.width < 420 ? randomInt(11, 12) : state.width < 720 ? randomInt(10, 11) : randomInt(8, 10);
+  const gap = isMobile() ? randomInt(3, 4) : randomInt(4, 6);
+  const side = isMobile() ? 10 : 16;
+  const minTop = isMobile() ? 118 : 112;
   const top = Math.max(minTop, state.height * random(0.13, 0.15));
   const unitWidth = (state.width - side * 2 - gap * (columns - 1)) / columns;
-  const baseHeight = clamp(state.height * random(0.036, 0.044), state.width < 420 ? 24 : 28, 40);
+  const baseHeight = isMobile()
+    ? clamp(state.height * random(0.028, 0.034), 20, 28)
+    : clamp(state.height * random(0.036, 0.044), 28, 40);
   const bricks = [];
   const totalSlots = columns * rows;
   const typeBag = makeBrickTypeBag(totalSlots);
@@ -324,7 +313,7 @@ function buildBricks() {
   state.fallPath = {
     left: cage.left + unitWidth * 0.12,
     right: cage.right - unitWidth * 0.12,
-    top: cage.centerY + 58,
+    top: cage.centerY + (isMobile() ? 44 : 58),
     bottom: state.wallBottom + baseHeight * 0.2,
   };
 
@@ -492,7 +481,7 @@ function takeBreakableType(typeBag) {
 }
 
 function makeBrickTypeBag(totalSlots) {
-  const targetSlots = state.width < 420 ? 44 : state.width < 720 ? 50 : 64;
+  const targetSlots = state.width < 420 ? 58 : state.width < 720 ? 62 : 64;
   const playableSlots = Math.min(totalSlots, targetSlots + randomInt(-2, 2));
   const immovableCount = clamp(Math.round(playableSlots * 0.12), 3, 5);
   const breakableCount = playableSlots - immovableCount;
@@ -916,7 +905,7 @@ function rescueTamal() {
 function updateRescue(dt) {
   if (!state.tamal.falling) return;
 
-  const targetY = state.susmita.y - 72;
+  const targetY = state.susmita.y - (isMobile() ? 56 : 72);
   state.tamal.y = lerp(state.tamal.y, targetY, clamp(dt * 1.9, 0, 1));
   state.susmita.x = lerp(state.susmita.x, state.width / 2, clamp(dt * 2.4, 0, 1));
   state.tamal.x = lerp(state.tamal.x, state.susmita.x, clamp(dt * 2.1, 0, 1));
@@ -932,7 +921,7 @@ function winGame() {
   state.won = true;
   state.over = true;
   state.running = false;
-  burst(state.width / 2, state.susmita.y - 72, palette.rose, 90);
+  burst(state.width / 2, state.susmita.y - (isMobile() ? 56 : 72), palette.rose, 90);
   setTimeout(showResult, 1450);
 }
 
@@ -1030,6 +1019,11 @@ function addFloatingText(value, x, y, color) {
 
 let toastTimer = 0;
 function showToast(title, text, duration) {
+  if (isMobile()) {
+    ui.toast.classList.remove("is-visible");
+    return;
+  }
+
   ui.toastTitle.textContent = title;
   ui.toastText.textContent = text;
   ui.toast.classList.add("is-visible");
@@ -1085,18 +1079,23 @@ function drawTamal() {
   const x = state.tamal.x;
   const y = state.tamal.y;
   const trapped = !state.tamal.free;
+  const scale = mobileScale();
 
   if (trapped) {
+    const cageWidth = 100 * scale;
+    const cageHeight = 132 * scale;
+    const top = y - 58 * scale;
+    const bottom = top + cageHeight;
     ctx.save();
     ctx.strokeStyle = "rgba(255, 255, 255, 0.18)";
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 4 * scale;
     ctx.beginPath();
-    ctx.roundRect(x - 50, y - 58, 100, 132, 8);
+    ctx.roundRect(x - cageWidth / 2, top, cageWidth, cageHeight, 8 * scale);
     ctx.stroke();
-    for (let i = -34; i <= 34; i += 17) {
+    for (let i = -34 * scale; i <= 34 * scale; i += 17 * scale) {
       ctx.beginPath();
-      ctx.moveTo(x + i, y - 56);
-      ctx.lineTo(x + i, y + 70);
+      ctx.moveTo(x + i, top + 2 * scale);
+      ctx.lineTo(x + i, bottom - 4 * scale);
       ctx.stroke();
     }
     ctx.restore();
@@ -1113,23 +1112,23 @@ function drawSusmita() {
   ctx.save();
   ctx.fillStyle = "rgba(255, 209, 102, 0.18)";
   ctx.beginPath();
-  ctx.roundRect(x - paddle.width / 2, y - paddle.height / 2, paddle.width, paddle.height, 11);
+  ctx.roundRect(x - paddle.width / 2, y - paddle.height / 2, paddle.width, paddle.height, paddle.height / 2);
   ctx.fill();
 
   ctx.strokeStyle = palette.gold;
-  ctx.lineWidth = 3;
+  ctx.lineWidth = isMobile() ? 2 : 3;
   ctx.beginPath();
-  ctx.roundRect(x - paddle.width / 2, y - paddle.height / 2, paddle.width, paddle.height, 11);
+  ctx.roundRect(x - paddle.width / 2, y - paddle.height / 2, paddle.width, paddle.height, paddle.height / 2);
   ctx.stroke();
   ctx.restore();
 
   if (state.tamal.hug < 0.18) {
-    drawLoveBalls(x + paddle.width / 2 - 34, y);
+    drawLoveBalls(x + paddle.width / 2 - (isMobile() ? 24 : 34), y);
   }
 
   const hugOffset = state.tamal.hug * 26;
-  const susmitaX = x - 28 + hugOffset * 0.7;
-  const susmitaY = y - 58;
+  const susmitaX = x - (isMobile() ? 22 : 28) + hugOffset * 0.7;
+  const susmitaY = y - (isMobile() ? 44 : 58);
   drawSusmitaCharacter(susmitaX, susmitaY, state.tamal.hug);
 
   if (state.tamal.hug > 0.2) {
@@ -1138,12 +1137,13 @@ function drawSusmita() {
 }
 
 function drawLoveBalls(x, y) {
+  const scale = mobileScale();
   ctx.save();
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
   for (let index = 0; index < 3; index += 1) {
-    const offset = (index - 1) * 14;
+    const offset = (index - 1) * 12 * scale;
     const active = index < state.chances;
     const ballX = x + offset;
     const ballY = y;
@@ -1151,12 +1151,12 @@ function drawLoveBalls(x, y) {
     ctx.globalAlpha = active ? 1 : 0.22;
     ctx.fillStyle = active ? "rgba(255, 209, 102, 0.24)" : "rgba(255, 255, 255, 0.08)";
     ctx.strokeStyle = active ? palette.gold : "rgba(255, 255, 255, 0.28)";
-    ctx.lineWidth = 1.5;
+    ctx.lineWidth = 1.5 * scale;
     ctx.beginPath();
-    ctx.arc(ballX, ballY, 6.5, 0, Math.PI * 2);
+    ctx.arc(ballX, ballY, 6 * scale, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
-    drawHeart(ballX, ballY - 0.5, 4.8, active ? palette.coral : "rgba(255, 247, 235, 0.45)");
+    drawHeart(ballX, ballY - 0.5, 4.5 * scale, active ? palette.coral : "rgba(255, 247, 235, 0.45)");
   }
 
   ctx.restore();
@@ -1165,6 +1165,7 @@ function drawLoveBalls(x, y) {
 function drawTamalCharacter(x, y, trapped, hug = 0) {
   ctx.save();
   ctx.translate(x, y);
+  ctx.scale(mobileScale(), mobileScale());
 
   drawCharacterShadow();
   drawCharacterBody("#4aa3df", "#2563a8", trapped ? 0.9 : 1, hug <= 0.2);
@@ -1178,6 +1179,7 @@ function drawTamalCharacter(x, y, trapped, hug = 0) {
 function drawSusmitaCharacter(x, y, hug) {
   ctx.save();
   ctx.translate(x, y);
+  ctx.scale(mobileScale(), mobileScale());
 
   drawCharacterShadow();
   drawCharacterBody("#f58fb0", "#b83280", 1, hug <= 0.2);
@@ -1191,62 +1193,64 @@ function drawSusmitaCharacter(x, y, hug) {
 function drawHugLove(tamalX, tamalY, susmitaX, susmitaY, hug) {
   const alpha = clamp(hug, 0, 1);
   const pulse = Math.sin(performance.now() / 180) * 1.5;
-  const tamalShoulderY = tamalY + 23;
-  const susmitaShoulderY = susmitaY + 23;
-  const holdY = Math.max(tamalShoulderY, susmitaShoulderY) + 16 + pulse;
+  const scale = mobileScale();
+  const shoulderX = 18 * scale;
+  const tamalShoulderY = tamalY + 23 * scale;
+  const susmitaShoulderY = susmitaY + 23 * scale;
+  const holdY = Math.max(tamalShoulderY, susmitaShoulderY) + 16 * scale + pulse;
 
   ctx.save();
   ctx.globalAlpha = alpha;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
 
-  drawHugArm(tamalX - 18, tamalShoulderY, susmitaX + 18, holdY, false);
-  drawHugArm(tamalX + 18, tamalShoulderY, susmitaX - 18, holdY + 4, true);
-  drawHugArm(susmitaX - 18, susmitaShoulderY, tamalX + 18, holdY - 3, true);
-  drawHugArm(susmitaX + 18, susmitaShoulderY, tamalX - 18, holdY + 5, false);
+  drawHugArm(tamalX - shoulderX, tamalShoulderY, susmitaX + shoulderX, holdY, false, scale);
+  drawHugArm(tamalX + shoulderX, tamalShoulderY, susmitaX - shoulderX, holdY + 4 * scale, true, scale);
+  drawHugArm(susmitaX - shoulderX, susmitaShoulderY, tamalX + shoulderX, holdY - 3 * scale, true, scale);
+  drawHugArm(susmitaX + shoulderX, susmitaShoulderY, tamalX - shoulderX, holdY + 5 * scale, false, scale);
 
-  drawHand(susmitaX + 18, holdY);
-  drawHand(susmitaX - 18, holdY + 4);
-  drawHand(tamalX + 18, holdY - 3);
-  drawHand(tamalX - 18, holdY + 5);
+  drawHand(susmitaX + shoulderX, holdY, scale);
+  drawHand(susmitaX - shoulderX, holdY + 4 * scale, scale);
+  drawHand(tamalX + shoulderX, holdY - 3 * scale, scale);
+  drawHand(tamalX - shoulderX, holdY + 5 * scale, scale);
 
   for (let index = 0; index < 5; index += 1) {
     const phase = performance.now() / 520 + index * 1.25;
     const centerX = (tamalX + susmitaX) / 2;
     const centerY = (tamalY + susmitaY) / 2;
-    const heartX = centerX + Math.cos(phase) * (26 + index * 4);
-    const heartY = centerY - 44 - ((phase * 12 + index * 9) % 44);
-    drawHeart(heartX, heartY, 7 + Math.sin(phase) * 1.6, index % 2 ? palette.rose : palette.coral);
+    const heartX = centerX + Math.cos(phase) * (26 + index * 4) * scale;
+    const heartY = centerY - 44 * scale - ((phase * 12 + index * 9) % 44) * scale;
+    drawHeart(heartX, heartY, (7 + Math.sin(phase) * 1.6) * scale, index % 2 ? palette.rose : palette.coral);
   }
 
   ctx.restore();
 }
 
-function drawHugArm(startX, startY, endX, endY, upperCurve) {
+function drawHugArm(startX, startY, endX, endY, upperCurve, scale = 1) {
   const midX = (startX + endX) / 2;
-  const controlY = upperCurve ? startY - 12 : endY + 14;
+  const controlY = upperCurve ? startY - 12 * scale : endY + 14 * scale;
 
   ctx.strokeStyle = "rgba(17, 23, 42, 0.34)";
-  ctx.lineWidth = 7;
+  ctx.lineWidth = 7 * scale;
   ctx.beginPath();
   ctx.moveTo(startX, startY);
   ctx.quadraticCurveTo(midX, controlY, endX, endY);
   ctx.stroke();
 
   ctx.strokeStyle = "rgba(255, 247, 235, 0.92)";
-  ctx.lineWidth = 4;
+  ctx.lineWidth = 4 * scale;
   ctx.beginPath();
   ctx.moveTo(startX, startY);
   ctx.quadraticCurveTo(midX, controlY, endX, endY);
   ctx.stroke();
 }
 
-function drawHand(x, y) {
+function drawHand(x, y, scale = 1) {
   ctx.fillStyle = "rgba(255, 247, 235, 0.96)";
   ctx.strokeStyle = "rgba(17, 23, 42, 0.34)";
-  ctx.lineWidth = 1.4;
+  ctx.lineWidth = 1.4 * scale;
   ctx.beginPath();
-  ctx.arc(x, y, 4.4, 0, Math.PI * 2);
+  ctx.arc(x, y, 4.4 * scale, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
 }

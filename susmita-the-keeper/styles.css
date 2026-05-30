@@ -58,8 +58,7 @@ button {
 
 .topbar,
 .progress-panel,
-.toast,
-.touch-controls {
+.toast {
   position: absolute;
   z-index: 3;
 }
@@ -208,55 +207,6 @@ h2 {
   font-size: 0.9rem;
 }
 
-.touch-controls {
-  left: 0;
-  right: 0;
-  bottom: calc(148px + env(safe-area-inset-bottom));
-  display: block;
-  height: 58px;
-  pointer-events: none;
-}
-
-.touch-controls button {
-  position: absolute;
-  top: 0;
-  width: 58px;
-  height: 58px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: rgba(15, 22, 38, 0.5);
-  color: transparent;
-  cursor: pointer;
-  pointer-events: auto;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-  backdrop-filter: blur(12px);
-}
-
-#leftButton {
-  left: 16px;
-}
-
-#rightButton {
-  right: 16px;
-}
-
-.touch-controls button::before {
-  display: block;
-  color: rgba(255, 255, 255, 0.64);
-  font-size: 1.8rem;
-  font-weight: 900;
-}
-
-#leftButton::before {
-  content: "<";
-}
-
-#rightButton::before {
-  content: ">";
-}
-
 .overlay {
   position: absolute;
   inset: 0;
@@ -338,9 +288,7 @@ h2 {
 .primary-button:hover,
 .primary-button:focus-visible,
 .secondary-button:hover,
-.secondary-button:focus-visible,
-.touch-controls button:hover,
-.touch-controls button:focus-visible {
+.secondary-button:focus-visible {
   outline: 2px solid rgba(255, 209, 102, 0.62);
   outline-offset: 2px;
 }
@@ -397,10 +345,6 @@ h2 {
     align-content: center;
   }
 
-  .touch-controls {
-    display: none;
-  }
-
   .toast {
     bottom: 22px;
   }
@@ -411,17 +355,18 @@ h2 {
     top: max(8px, env(safe-area-inset-top));
     left: 8px;
     right: 8px;
-    gap: 6px;
-    padding: 6px 7px;
-    min-height: 44px;
+    gap: 5px;
+    padding: 5px 6px;
+    min-height: 36px;
   }
 
   .eyebrow {
-    font-size: 0.54rem;
+    margin-bottom: 2px;
+    font-size: 0.48rem;
   }
 
   h1 {
-    font-size: 0.9rem;
+    font-size: 0.82rem;
   }
 
   h2 {
@@ -430,70 +375,39 @@ h2 {
   }
 
   .score-card {
-    min-width: 56px;
-    padding: 4px 6px;
+    min-width: 48px;
+    padding: 3px 5px;
+    border-radius: 6px;
   }
 
   .score-card span {
-    font-size: 0.64rem;
+    font-size: 0.56rem;
   }
 
   .score-card strong {
-    font-size: 0.84rem;
+    font-size: 0.76rem;
   }
 
   .progress-panel {
-    top: calc(max(8px, env(safe-area-inset-top)) + 48px);
+    top: calc(max(8px, env(safe-area-inset-top)) + 41px);
     left: 8px;
     right: 8px;
-    padding: 6px 8px;
-    min-height: 40px;
+    padding: 4px 7px;
+    min-height: 31px;
+    border-radius: 7px;
   }
 
   .progress-label {
-    font-size: 0.68rem;
+    font-size: 0.61rem;
   }
 
   .progress-track {
-    height: 5px;
-    margin-top: 4px;
-  }
-
-  .touch-controls {
-    bottom: calc(142px + env(safe-area-inset-bottom));
-    height: 54px;
-  }
-
-  .touch-controls button {
-    width: 54px;
-    height: 54px;
-  }
-
-  #leftButton {
-    left: 12px;
-  }
-
-  #rightButton {
-    right: 12px;
-  }
-
-  .touch-controls button::before {
-    font-size: 1.55rem;
+    height: 4px;
+    margin-top: 3px;
   }
 
   .toast {
-    left: 12px;
-    right: 12px;
-    bottom: calc(70px + env(safe-area-inset-bottom));
-    padding: 9px 10px;
-  }
-
-  .toast strong {
-    font-size: 0.84rem;
-  }
-
-  .toast span {
-    font-size: 0.82rem;
+    display: none;
   }
 
   .overlay {

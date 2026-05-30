@@ -296,7 +296,7 @@ function buildBricks() {
   const rows = state.width < 420 ? randomInt(11, 12) : state.width < 720 ? randomInt(10, 11) : randomInt(8, 10);
   const gap = isMobile() ? randomInt(3, 4) : randomInt(4, 6);
   const side = isMobile() ? 10 : 16;
-  const minTop = isMobile() ? 118 : 112;
+  const minTop = isMobile() ? 126 : 112;
   const top = Math.max(minTop, state.height * random(0.13, 0.15));
   const unitWidth = (state.width - side * 2 - gap * (columns - 1)) / columns;
   const baseHeight = isMobile()
@@ -340,9 +340,10 @@ function buildBricks() {
       const cageRequired = isCageRequiredSlot(row, col, cage);
       const pathSlot = isFallPathSlot(row, col, cage);
       const sideRisk = isSideRiskSlot(col, cage);
+      const nearCenter = !sideRisk && !pathSlot && !cageRequired;
       const canSpan = !pathSlot && !cageRequired && remaining > 1 && !isEdge && typeBag.length < slotsLeft && Math.random() < 0.24;
       const span = canSpan ? randomInt(1, Math.min(2, remaining)) : 1;
-      let type = takeTypeForSlot(typeBag, { row, pathSlot, cageRequired, sideRisk });
+      let type = takeTypeForSlot(typeBag, { row, pathSlot, cageRequired, sideRisk, nearCenter });
 
       if (!type) {
         col += span;
@@ -423,7 +424,7 @@ function isSideRiskSlot(col, cage) {
   return col < cage.pocketStart - 1 || col > cage.pocketEnd + 1;
 }
 
-function takeTypeForSlot(typeBag, { row, pathSlot, cageRequired, sideRisk }) {
+function takeTypeForSlot(typeBag, { row, pathSlot, cageRequired, sideRisk, nearCenter }) {
   if (row <= 1 && !sideRisk && Math.random() < 0.74) {
     const topReward = takeTopRewardType(typeBag);
 
@@ -438,16 +439,34 @@ function takeTypeForSlot(typeBag, { row, pathSlot, cageRequired, sideRisk }) {
     return takeBreakableType(typeBag);
   }
 
-  if (sideRisk && Math.random() < 0.72) {
-    const index = typeBag.findIndex((type) => type.kind === "negative" || type.kind === "immovable");
+  if (sideRisk) {
+    const roll = Math.random();
+    const balancedSideType =
+      roll < 0.46
+        ? takeTypeByKinds(typeBag, ["positive"])
+        : roll < 0.86
+          ? takeTypeByKinds(typeBag, ["negative"])
+          : takeTypeByKinds(typeBag, ["immovable"]);
 
-    if (index >= 0) {
-      const [type] = typeBag.splice(index, 1);
-      return type;
-    }
+    if (balancedSideType) return balancedSideType;
+  }
+
+  if (nearCenter && row > 2 && Math.random() < 0.34) {
+    const centerProblem = takeTypeByKinds(typeBag, ["negative", "immovable"]);
+
+    if (centerProblem) return centerProblem;
   }
 
   return typeBag.pop();
+}
+
+function takeTypeByKinds(typeBag, kinds) {
+  const index = typeBag.findIndex((type) => kinds.includes(type.kind));
+
+  if (index < 0) return null;
+
+  const [type] = typeBag.splice(index, 1);
+  return type;
 }
 
 function takeTopRewardType(typeBag) {
@@ -594,7 +613,7 @@ function updateRush(dt) {
 }
 
 function currentSpeed() {
-  const base = (410 + Math.min(215, state.elapsed * 7.4)) * state.difficulty;
+  const base = (435 + Math.min(215, state.elapsed * 7.4)) * state.difficulty;
   return state.rushTimer > 0 ? base * 1.62 : base;
 }
 
@@ -616,8 +635,11 @@ function updateSusmita(dt) {
     desiredVelocity = clamp((pointerTarget - state.susmita.x) * 9.5, -maxSpeed, maxSpeed);
   }
 
-  const easing = target || state.input.pointer ? 12 : 7;
+  const easing = target || state.input.pointer ? 13.5 : 18;
   state.susmita.vx = lerp(state.susmita.vx, desiredVelocity, clamp(dt * easing, 0, 1));
+  if (!target && !state.input.pointer && Math.abs(state.susmita.vx) < 6) {
+    state.susmita.vx = 0;
+  }
   state.susmita.x += state.susmita.vx * dt;
 
   state.susmita.x = clamp(

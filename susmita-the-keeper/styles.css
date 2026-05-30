@@ -389,7 +389,7 @@ h2 {
   }
 
   .progress-panel {
-    top: calc(max(8px, env(safe-area-inset-top)) + 41px);
+    top: calc(max(8px, env(safe-area-inset-top)) + 50px);
     left: 8px;
     right: 8px;
     padding: 4px 7px;

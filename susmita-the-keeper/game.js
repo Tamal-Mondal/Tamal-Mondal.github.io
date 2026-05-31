@@ -157,7 +157,7 @@ function init() {
   bindEvents();
   resize();
   resetGame();
-  showToast("Ready?", "Collect Care, Clear Problems, And Protect The Relationship.", 3600);
+  showToast("Ready?", "Collect care, clear problems, and protect the relationship.", 3600);
   requestAnimationFrame(loop);
 }
 
@@ -606,7 +606,7 @@ function startGame() {
   if (state.over) return;
   state.running = true;
   state.last = performance.now();
-  showToast("Go Susmita", "Tap Or Press Space To Release The Heart-Ball.", 2800);
+  showToast("Go Susmita", "Tap or press space to release the heart-ball.", 2800);
 }
 
 function launchBall() {
@@ -656,14 +656,14 @@ function updateRush(dt) {
     !state.tamal.falling
   ) {
     state.rushWarned = true;
-    showToast("Rush Zone", "Speed Burst Incoming. Stay With The Heart.", 1300);
+    showToast("Rush Zone", "Speed burst incoming. Stay with the heart.", 1300);
   }
 
   if (state.elapsed > state.nextRushAt && !state.ball.attached && !state.tamal.falling) {
     state.rushTimer = random(2.2, 3.4);
     state.nextRushAt = state.elapsed + random(6.5, 10.5);
     state.rushWarned = false;
-    showToast("Rush Burst", "The Day Got Chaotic. Hold Steady.", 1600);
+    showToast("Rush Burst", "The day got chaotic. Hold steady.", 1600);
   }
 }
 
@@ -824,7 +824,7 @@ function collideWithSusmita() {
       const comboBonus = state.combo * 50;
       state.score += comboBonus;
       addFloatingText(`Combo +${comboBonus}`, ball.x, ball.y - 20, palette.gold);
-      showToast("Combo Kept", `${state.combo} Problems In One Run. +${comboBonus}`, 1400);
+      showToast("Combo Kept", `${state.combo} problems in one run. +${comboBonus}`, 1400);
     }
 
     state.combo = 0;
@@ -978,7 +978,7 @@ function rescueTamal() {
   state.rescueBonus = 500;
   state.chanceBonus = state.chances * 300;
   state.score += state.rescueBonus + state.chanceBonus;
-  showToast("Tamal Is Free", "Susmita Cleared The Way. Hug Incoming.", 2600);
+  showToast("Tamal Is Free", "Susmita cleared the way. Hug incoming.", 2600);
   burst(state.tamal.x, state.tamal.y + 32, palette.gold, 60);
 }
 
@@ -1019,12 +1019,12 @@ function loseChance() {
   if (state.chances <= 0) {
     state.over = true;
     state.running = false;
-    showToast("Almost", "The Wall Is Still There, But Love Gets Rematches.", 1200);
+    showToast("Almost", "The wall is still there, but love gets rematches.", 1200);
     setTimeout(showResult, 900);
     return;
   }
 
-  showToast("Love Ball Used", `${state.chances} Love Ball${state.chances === 1 ? "" : "s"} Left. Bring Him Back.`, 1800);
+  showToast("Love Ball Used", `${state.chances} love ball${state.chances === 1 ? "" : "s"} left. Bring him back.`, 1800);
 }
 
 function showResult() {
@@ -1032,8 +1032,8 @@ function showResult() {
   ui.resultEyebrow.textContent = state.won ? "Rescue Complete" : "Try Again";
   ui.resultTitle.textContent = rank;
   ui.resultMessage.textContent = state.won
-    ? "Susmita Rescued Tamal And Protected The Relationship."
-    : "Tamal Is Still Waiting, But The Next Rescue Starts Stronger.";
+    ? "Susmita rescued Tamal and protected the relationship."
+    : "Tamal is still waiting, but the next rescue starts stronger.";
   ui.finalScore.textContent = String(state.score);
   ui.finalRank.textContent = rank;
   ui.bonusText.textContent = `+${state.rescueBonus + state.chanceBonus}`;

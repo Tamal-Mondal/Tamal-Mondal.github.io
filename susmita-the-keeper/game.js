@@ -998,7 +998,7 @@ function updateRescue(dt) {
   if (!state.tamal.falling) return;
 
   const targetY = getHugCharacterY();
-  const targetTamalX = state.width / 2 - getHugCharacterGap() / 2;
+  const targetTamalX = state.width / 2 - getHugCharacterGap(state.tamal.hug) / 2;
   state.tamal.y = lerp(state.tamal.y, targetY, clamp(dt * 1.9, 0, 1));
   state.susmita.x = lerp(state.susmita.x, state.width / 2, clamp(dt * 2.4, 0, 1));
   state.tamal.x = lerp(state.tamal.x, targetTamalX, clamp(dt * 2.1, 0, 1));
@@ -1222,9 +1222,9 @@ function drawSusmita() {
   const hugOffset = state.tamal.hug * 26;
   const baseSusmitaX = x - (isMobile() ? 22 : 28) + hugOffset * 0.7;
   const sideBySide = clamp((state.tamal.hug - 0.28) / 0.72, 0, 1);
-  const susmitaX = lerp(baseSusmitaX, x + getHugCharacterGap() / 2, sideBySide);
+  const susmitaX = lerp(baseSusmitaX, x + getHugCharacterGap(state.tamal.hug) / 2, sideBySide);
   const susmitaY = getHugCharacterY();
-  drawSusmitaCharacter(susmitaX, susmitaY, state.tamal.hug);
+  drawSusmitaCharacter(susmitaX, susmitaY, state.tamal.hug, -1);
 
   if (state.tamal.hug > 0.2) {
     drawHugLove(state.tamal.x, state.tamal.y, susmitaX, susmitaY, state.tamal.hug);
@@ -1263,24 +1263,30 @@ function drawTamalCharacter(x, y, trapped, hug = 0) {
   ctx.scale(mobileScale(), mobileScale());
 
   drawCharacterShadow();
+  ctx.save();
+  ctx.rotate(trapped ? 0 : getHugTurn(hug));
   drawCharacterBody("#4aa3df", "#2563a8", trapped ? 0.9 : 1, hug <= 0.58);
   drawCharacterHead("#f4c7a1");
   drawHair("male");
   drawFace(trapped ? "worried" : "happy");
+  ctx.restore();
   drawCharacterLabel(trapped ? "Tamal Trapped" : "Tamal", 68);
   ctx.restore();
 }
 
-function drawSusmitaCharacter(x, y, hug) {
+function drawSusmitaCharacter(x, y, hug, turnDirection = 0) {
   ctx.save();
   ctx.translate(x, y);
   ctx.scale(mobileScale(), mobileScale());
 
   drawCharacterShadow();
+  ctx.save();
+  ctx.rotate(turnDirection * getHugTurn(hug));
   drawCharacterBody("#f58fb0", "#b83280", 1, hug <= 0.58);
   drawCharacterHead("#f2bd98");
   drawHair("female");
   drawFace(hug > 0.25 ? "happy" : "focused");
+  ctx.restore();
   drawCharacterLabel("Susmita", 72);
   ctx.restore();
 }
@@ -1293,7 +1299,7 @@ function drawHugLove(tamalX, tamalY, susmitaX, susmitaY, hug) {
   const pulse = Math.sin(performance.now() / 180) * 0.7;
   const scale = mobileScale();
   const shoulderX = 15 * scale;
-  const hugGap = getHugCharacterGap();
+  const hugGap = getHugCharacterGap(hug);
   const centerX = (tamalX + susmitaX) / 2;
   const nearTamalX = lerp(tamalX, centerX - hugGap / 2, close);
   const nearSusmitaX = lerp(susmitaX, centerX + hugGap / 2, close);
@@ -1327,8 +1333,15 @@ function drawHugLove(tamalX, tamalY, susmitaX, susmitaY, hug) {
   ctx.restore();
 }
 
-function getHugCharacterGap() {
-  return (isMobile() ? 52 : 60) * mobileScale();
+function getHugCharacterGap(hug = 0) {
+  const close = clamp((hug - 0.5) / 0.5, 0, 1);
+  const openGap = (isMobile() ? 52 : 60) * mobileScale();
+  const finalGap = (isMobile() ? 36 : 42) * mobileScale();
+  return lerp(openGap, finalGap, close);
+}
+
+function getHugTurn(hug) {
+  return clamp((hug - 0.45) / 0.55, 0, 1) * 0.09;
 }
 
 function getHugCharacterY() {

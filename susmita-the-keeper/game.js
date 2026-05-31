@@ -280,7 +280,7 @@ function resetGame() {
   state.elapsed = 0;
   state.rushTimer = 0;
   state.rushWarned = false;
-  state.difficulty = random(0.96, 1.14);
+  state.difficulty = isMobile() ? random(0.94, 1.04) : random(0.96, 1.14);
   state.nextRushAt = random(5.8, 10.5) / state.difficulty;
   state.shake = 0;
   state.tamal.free = false;
@@ -693,9 +693,14 @@ function updateRush(dt) {
 }
 
 function currentSpeed() {
-  const startSpeed = isMobile() ? 470 : 520;
-  const growth = isMobile() ? 9.6 : 8.4;
-  const base = (startSpeed + Math.min(245, state.elapsed * growth)) * state.difficulty;
+  if (isMobile()) {
+    const openingSeconds = 7;
+    const normalGrowth = Math.max(0, state.elapsed - openingSeconds) * 4.8;
+    const base = (390 + Math.min(80, normalGrowth)) * state.difficulty;
+    return state.rushTimer > 0 ? base * 1.48 : base;
+  }
+
+  const base = (520 + Math.min(245, state.elapsed * 8.4)) * state.difficulty;
   return state.rushTimer > 0 ? base * 1.48 : base;
 }
 

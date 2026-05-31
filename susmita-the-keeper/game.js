@@ -1260,7 +1260,7 @@ function drawTamalCharacter(x, y, trapped, hug = 0) {
   ctx.scale(mobileScale(), mobileScale());
 
   drawCharacterShadow();
-  drawCharacterBody("#4aa3df", "#2563a8", trapped ? 0.9 : 1, hug <= 0.2);
+  drawCharacterBody("#4aa3df", "#2563a8", trapped ? 0.9 : 1, hug <= 0.58);
   drawCharacterHead("#f4c7a1");
   drawHair("male");
   drawFace(trapped ? "worried" : "happy");
@@ -1274,7 +1274,7 @@ function drawSusmitaCharacter(x, y, hug) {
   ctx.scale(mobileScale(), mobileScale());
 
   drawCharacterShadow();
-  drawCharacterBody("#f58fb0", "#b83280", 1, hug <= 0.2);
+  drawCharacterBody("#f58fb0", "#b83280", 1, hug <= 0.58);
   drawCharacterHead("#f2bd98");
   drawHair("female");
   drawFace(hug > 0.25 ? "happy" : "focused");
@@ -1283,32 +1283,38 @@ function drawSusmitaCharacter(x, y, hug) {
 }
 
 function drawHugLove(tamalX, tamalY, susmitaX, susmitaY, hug) {
-  const alpha = clamp(hug, 0, 1);
-  const pulse = Math.sin(performance.now() / 180) * 1.5;
+  const close = clamp((hug - 0.55) / 0.45, 0, 1);
+  if (close <= 0) return;
+
+  const alpha = close;
+  const pulse = Math.sin(performance.now() / 180) * 0.7;
   const scale = mobileScale();
-  const shoulderX = 18 * scale;
+  const shoulderX = 15 * scale;
+  const hugGap = 12 * scale;
+  const centerX = (tamalX + susmitaX) / 2;
+  const nearTamalX = lerp(tamalX, centerX + hugGap / 2, close);
+  const nearSusmitaX = lerp(susmitaX, centerX - hugGap / 2, close);
   const tamalShoulderY = tamalY + 23 * scale;
   const susmitaShoulderY = susmitaY + 23 * scale;
-  const holdY = Math.max(tamalShoulderY, susmitaShoulderY) + 16 * scale + pulse;
+  const armY = Math.max(tamalShoulderY, susmitaShoulderY) + 11 * scale + pulse;
 
   ctx.save();
   ctx.globalAlpha = alpha;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
 
-  drawHugArm(tamalX - shoulderX, tamalShoulderY, susmitaX + shoulderX, holdY, false, scale);
-  drawHugArm(tamalX + shoulderX, tamalShoulderY, susmitaX - shoulderX, holdY + 4 * scale, true, scale);
-  drawHugArm(susmitaX - shoulderX, susmitaShoulderY, tamalX + shoulderX, holdY - 3 * scale, true, scale);
-  drawHugArm(susmitaX + shoulderX, susmitaShoulderY, tamalX - shoulderX, holdY + 5 * scale, false, scale);
+  drawHugArm(nearTamalX - shoulderX, tamalShoulderY, nearSusmitaX - 5 * scale, armY, false, scale);
+  drawHugArm(nearTamalX + shoulderX, tamalShoulderY, nearSusmitaX + 12 * scale, armY + 2 * scale, true, scale);
+  drawHugArm(nearSusmitaX - shoulderX, susmitaShoulderY, nearTamalX - 12 * scale, armY + 2 * scale, true, scale);
+  drawHugArm(nearSusmitaX + shoulderX, susmitaShoulderY, nearTamalX + 5 * scale, armY, false, scale);
 
-  drawHand(susmitaX + shoulderX, holdY, scale);
-  drawHand(susmitaX - shoulderX, holdY + 4 * scale, scale);
-  drawHand(tamalX + shoulderX, holdY - 3 * scale, scale);
-  drawHand(tamalX - shoulderX, holdY + 5 * scale, scale);
+  drawHand(nearSusmitaX - 5 * scale, armY, scale);
+  drawHand(nearSusmitaX + 12 * scale, armY + 2 * scale, scale);
+  drawHand(nearTamalX - 12 * scale, armY + 2 * scale, scale);
+  drawHand(nearTamalX + 5 * scale, armY, scale);
 
   for (let index = 0; index < 5; index += 1) {
     const phase = performance.now() / 520 + index * 1.25;
-    const centerX = (tamalX + susmitaX) / 2;
     const centerY = (tamalY + susmitaY) / 2;
     const heartX = centerX + Math.cos(phase) * (26 + index * 4) * scale;
     const heartY = centerY - 44 * scale - ((phase * 12 + index * 9) % 44) * scale;

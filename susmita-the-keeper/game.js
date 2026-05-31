@@ -355,7 +355,19 @@ function buildBricks() {
         continue;
       }
 
-      if ((pathSlot || cageRequired) && type.kind === "immovable") {
+      const initiallyImmovable = type.kind === "immovable";
+      const width = unitWidth * span + gap * (span - 1) + random(-3, 5);
+      const height = baseHeight * random(0.84, initiallyImmovable ? 0.98 : 1.12);
+      const x = side + col * (unitWidth + gap) + rowLean + random(-2.5, 2.5);
+      const brickRect = {
+        x: clamp(x, side, state.width - side - width),
+        y: top + row * (baseHeight + gap) + random(-2, 2),
+        width,
+        height,
+      };
+      const blocksFallPath = intersectsRectPath(brickRect, state.fallPath);
+
+      if (((pathSlot || cageRequired) && type.kind === "immovable") || (type.kind === "immovable" && blocksFallPath)) {
         type = takeBreakableType(typeBag);
       }
 
@@ -364,13 +376,10 @@ function buildBricks() {
       const hardBrick = !immovable && Math.abs(type.points) >= 75 && Math.random() < 0.34 * state.difficulty;
       const bossBrick = !immovable && Math.abs(type.points) >= 120 && row < 2 && Math.random() < 0.14 * state.difficulty;
       const toughness = immovable ? 0 : bossBrick ? 3 : hardBrick ? 2 : 1;
-      const width = unitWidth * span + gap * (span - 1) + random(-3, 5);
-      const height = baseHeight * random(0.84, immovable ? 0.98 : 1.12);
-      const x = side + col * (unitWidth + gap) + rowLean + random(-2.5, 2.5);
 
       bricks.push({
-        x: clamp(x, side, state.width - side - width),
-        y: top + row * (baseHeight + gap) + random(-2, 2),
+        x: brickRect.x,
+        y: brickRect.y,
         width,
         height,
         type,
@@ -931,12 +940,15 @@ function isFallPathClear() {
 }
 
 function intersectsFallPath(brick) {
-  const path = state.fallPath;
+  return intersectsRectPath(brick, state.fallPath);
+}
+
+function intersectsRectPath(rect, path) {
   return (
-    brick.x < path.right &&
-    brick.x + brick.width > path.left &&
-    brick.y < path.bottom &&
-    brick.y + brick.height > path.top
+    rect.x < path.right &&
+    rect.x + rect.width > path.left &&
+    rect.y < path.bottom &&
+    rect.y + rect.height > path.top
   );
 }
 
@@ -1455,25 +1467,28 @@ function drawBricks() {
 
     ctx.shadowBlur = 0;
     ctx.fillStyle = textColor;
-    ctx.font = `${labelFontSize(brick.type.label, brick.width)}px Inter, system-ui, sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
+    const labelSize = fitTextSize(brick.type.label, brick.width - 10, labelFontSize(brick.type.label, brick.width), 5.5, "700");
+    ctx.font = `700 ${labelSize}px Inter, system-ui, sans-serif`;
     if (brick.type.kind !== "positive") {
       ctx.strokeStyle = "rgba(17, 24, 39, 0.42)";
-      ctx.lineWidth = 3;
+      ctx.lineWidth = Math.max(1.5, labelSize * 0.32);
       ctx.strokeText(brick.type.label, cx, cy - 4);
     }
     ctx.fillText(brick.type.label, cx, cy - 4);
 
     ctx.fillStyle = badgeColor;
-    ctx.font = `800 ${pointFontSize(brick.width, brick.height)}px Inter, system-ui, sans-serif`;
+    const points = formatPoints(brick.type.points);
+    const pointSize = fitTextSize(points, brick.width - 12, pointFontSize(brick.width, brick.height), 6, "800");
+    ctx.font = `800 ${pointSize}px Inter, system-ui, sans-serif`;
     const pointY = cy + Math.min(11, brick.height * 0.32);
     if (brick.type.kind !== "positive") {
       ctx.strokeStyle = "rgba(17, 24, 39, 0.5)";
-      ctx.lineWidth = 3;
-      ctx.strokeText(formatPoints(brick.type.points), cx, pointY);
+      ctx.lineWidth = Math.max(1.6, pointSize * 0.3);
+      ctx.strokeText(points, cx, pointY);
     }
-    ctx.fillText(formatPoints(brick.type.points), cx, pointY);
+    ctx.fillText(points, cx, pointY);
 
     if (brick.immovable) {
       ctx.strokeStyle = "rgba(255, 247, 235, 0.58)";
@@ -1509,6 +1524,18 @@ function labelFontSize(label, width) {
 function pointFontSize(width, height) {
   if (width < 56 || height < 32) return 8;
   return 10;
+}
+
+function fitTextSize(text, maxWidth, preferredSize, minSize, weight) {
+  let size = preferredSize;
+
+  while (size > minSize) {
+    ctx.font = `${weight} ${size}px Inter, system-ui, sans-serif`;
+    if (ctx.measureText(text).width <= maxWidth) return size;
+    size -= 0.5;
+  }
+
+  return minSize;
 }
 
 function formatPoints(points) {

@@ -367,10 +367,12 @@ function buildBricks() {
       const pathSlot = isFallPathSlot(row, col, cage);
       const sideRisk = isSideRiskSlot(col, cage);
       const nearCenter = !sideRisk && !pathSlot && !cageRequired;
-      const canSpan = !pathSlot && !cageRequired && remaining > 1 && !isEdge && typeBag.length < slotsLeft && Math.random() < 0.24;
+      const spanChance = isMobile() ? 0.36 : 0.24;
+      const canSpan = !pathSlot && !cageRequired && remaining > 1 && !isEdge && typeBag.length < slotsLeft && Math.random() < spanChance;
       const span = canSpan ? randomInt(1, Math.min(2, remaining)) : 1;
+      const slotWidth = unitWidth * span + gap * (span - 1);
       const problemStreak = getMaxProblemStreak(columnProblemStreaks, col, span);
-      let type = takeTypeForSlot(typeBag, { row, pathSlot, cageRequired, sideRisk, nearCenter, problemStreak });
+      let type = takeTypeForSlot(typeBag, { row, pathSlot, cageRequired, sideRisk, nearCenter, problemStreak, width: slotWidth });
 
       if (!type) {
         col += span;
@@ -390,7 +392,7 @@ function buildBricks() {
       const blocksFallPath = intersectsRectPath(brickRect, state.fallPath);
 
       if (((pathSlot || cageRequired) && type.kind === "immovable") || (type.kind === "immovable" && blocksFallPath)) {
-        type = takeBreakableType(typeBag);
+        type = takeBreakableType(typeBag, width);
       }
 
       const immovable = type.kind === "immovable";
@@ -481,24 +483,24 @@ function updateColumnProblemStreaks(streaks, col, span, kind) {
   }
 }
 
-function takeTypeForSlot(typeBag, { row, pathSlot, cageRequired, sideRisk, nearCenter, problemStreak }) {
+function takeTypeForSlot(typeBag, { row, pathSlot, cageRequired, sideRisk, nearCenter, problemStreak, width }) {
   if (row <= 1 && !sideRisk && Math.random() < 0.74) {
-    const topReward = takeTopRewardType(typeBag);
+    const topReward = takeTopRewardType(typeBag, width);
 
     if (topReward) return topReward;
   }
 
   if (pathSlot) {
-    return takeBreakableType(typeBag);
+    return takeBreakableType(typeBag, width);
   }
 
   if (cageRequired) {
-    return takeBreakableType(typeBag);
+    return takeBreakableType(typeBag, width);
   }
 
   if (sideRisk) {
     if (problemStreak > 0) {
-      const positiveBreak = takeTypeByKinds(typeBag, ["positive"]);
+      const positiveBreak = takeTypeByKinds(typeBag, ["positive"], width);
 
       if (positiveBreak) return positiveBreak;
     }
@@ -506,57 +508,86 @@ function takeTypeForSlot(typeBag, { row, pathSlot, cageRequired, sideRisk, nearC
     const roll = Math.random();
     const balancedSideType =
       roll < 0.78
-        ? takeTypeByKinds(typeBag, ["positive"])
-        : takeTypeByKinds(typeBag, ["immovable"]);
+        ? takeTypeByKinds(typeBag, ["positive"], width)
+        : takeTypeByKinds(typeBag, ["immovable"], width);
 
     if (balancedSideType) return balancedSideType;
   }
 
   if (nearCenter && row > 2 && Math.random() < 0.34) {
-    const centerProblem = takeTypeByKinds(typeBag, ["immovable"]);
+    const centerProblem = takeTypeByKinds(typeBag, ["immovable"], width);
 
     if (centerProblem) return centerProblem;
   }
 
-  return typeBag.pop();
+  return takeReadableType(typeBag, width) || typeBag.pop();
 }
 
-function takeTypeByKinds(typeBag, kinds) {
-  const index = typeBag.findIndex((type) => kinds.includes(type.kind));
-
-  if (index < 0) return null;
-
-  const [type] = typeBag.splice(index, 1);
-  return type;
+function takeTypeByKinds(typeBag, kinds, width) {
+  return takeReadableTypeByPredicate(typeBag, width, (type) => kinds.includes(type.kind));
 }
 
-function takeTopRewardType(typeBag) {
-  const index = typeBag.findIndex((type) => type.kind === "positive" && type.points >= 120);
+function takeTopRewardType(typeBag, width) {
+  const topReward = takeReadableTypeByPredicate(typeBag, width, (type) => type.kind === "positive" && type.points >= 120);
 
-  if (index >= 0) {
-    const [type] = typeBag.splice(index, 1);
+  if (topReward) return topReward;
+
+  return takeReadableTypeByPredicate(typeBag, width, (type) => type.kind === "positive");
+}
+
+function takeBreakableType(typeBag, width = Infinity) {
+  const type = takeReadableTypeByPredicate(typeBag, width, (candidate) => candidate.kind === "positive");
+
+  return type || { ...pickReadableFallback(positiveBrickTypes, width) };
+}
+
+function takeReadableType(typeBag, width) {
+  return takeReadableTypeByPredicate(typeBag, width, () => true);
+}
+
+function takeReadableTypeByPredicate(typeBag, width, predicate) {
+  const readableIndex = findReadableTypeIndex(typeBag, width, predicate);
+
+  if (readableIndex >= 0) {
+    const [type] = typeBag.splice(readableIndex, 1);
     return type;
   }
 
-  const fallbackIndex = typeBag.findIndex((type) => type.kind === "positive");
+  const fallbackIndex = typeBag.findIndex(predicate);
 
-  if (fallbackIndex >= 0) {
-    const [type] = typeBag.splice(fallbackIndex, 1);
-    return type;
-  }
+  if (fallbackIndex < 0) return null;
 
-  return null;
+  const [type] = typeBag.splice(fallbackIndex, 1);
+  return makeTypeReadableForWidth(type, width);
 }
 
-function takeBreakableType(typeBag) {
-  const index = typeBag.findIndex((type) => type.kind === "positive");
+function findReadableTypeIndex(typeBag, width, predicate) {
+  return typeBag.findIndex((type) => predicate(type) && canLabelFitBrick(type.label, width));
+}
 
-  if (index >= 0) {
-    const [type] = typeBag.splice(index, 1);
-    return type;
-  }
+function makeTypeReadableForWidth(type, width) {
+  if (canLabelFitBrick(type.label, width)) return type;
 
-  return { ...positiveBrickTypes[Math.floor(random(0, positiveBrickTypes.length))] };
+  const pool = type.kind === "immovable" ? immovableBrickTypes : positiveBrickTypes;
+  const fallback = pickReadableFallback(pool, width);
+  return { ...type, label: fallback.label, color: fallback.color, detail: fallback.detail };
+}
+
+function pickReadableFallback(pool, width) {
+  const readable = pool.filter((type) => canLabelFitBrick(type.label, width));
+  const source = readable.length ? readable : pool;
+  return source[Math.floor(random(0, source.length))];
+}
+
+function canLabelFitBrick(label, width) {
+  if (!isMobile()) return true;
+
+  const maxWidth = width - 12;
+  ctx.save();
+  ctx.font = "700 8.2px Inter, system-ui, sans-serif";
+  const fits = ctx.measureText(label).width <= maxWidth;
+  ctx.restore();
+  return fits;
 }
 
 function makeBrickTypeBag(totalSlots) {

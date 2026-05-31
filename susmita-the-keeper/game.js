@@ -280,7 +280,7 @@ function resetGame() {
   state.elapsed = 0;
   state.rushTimer = 0;
   state.rushWarned = false;
-  state.difficulty = isMobile() ? random(0.94, 1.04) : random(0.96, 1.14);
+  state.difficulty = isMobile() ? random(0.92, 1.02) : random(0.96, 1.14);
   state.nextRushAt = random(5.8, 10.5) / state.difficulty;
   state.shake = 0;
   state.tamal.free = false;
@@ -685,7 +685,7 @@ function updateRush(dt) {
   }
 
   if (state.elapsed > state.nextRushAt && !state.ball.attached && !state.tamal.falling) {
-    state.rushTimer = random(2.2, 3.4);
+    state.rushTimer = random(3, 5);
     state.nextRushAt = state.elapsed + random(6.5, 10.5);
     state.rushWarned = false;
     showToast("Rush Burst", "The day got chaotic. Hold steady.", 1600);
@@ -695,13 +695,13 @@ function updateRush(dt) {
 function currentSpeed() {
   if (isMobile()) {
     const openingSeconds = 7;
-    const normalGrowth = Math.max(0, state.elapsed - openingSeconds) * 4.8;
-    const base = (390 + Math.min(80, normalGrowth)) * state.difficulty;
-    return state.rushTimer > 0 ? base * 1.48 : base;
+    const normalGrowth = Math.max(0, state.elapsed - openingSeconds) * 4.2;
+    const base = (350 + Math.min(70, normalGrowth)) * state.difficulty;
+    return state.rushTimer > 0 ? base * 1.36 : base;
   }
 
   const base = (520 + Math.min(245, state.elapsed * 8.4)) * state.difficulty;
-  return state.rushTimer > 0 ? base * 1.48 : base;
+  return state.rushTimer > 0 ? base * 1.42 : base;
 }
 
 function updateSusmita(dt) {

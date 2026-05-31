@@ -334,7 +334,8 @@ h2 {
     right: auto;
     width: min(430px, calc(52vw - 44px));
     padding: 9px;
-    min-height: 58px;
+    height: 64px;
+    min-height: 0;
   }
 
   .progress-panel {
@@ -342,7 +343,9 @@ h2 {
     left: min(474px, 54vw);
     right: 22px;
     width: auto;
-    min-height: 58px;
+    height: 64px;
+    min-height: 0;
+    padding: 9px;
     display: grid;
     align-content: center;
   }

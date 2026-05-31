@@ -65,8 +65,8 @@ const brickTypes = [...positiveBrickTypes, ...negativeBrickTypes];
 
 const scoreBudget = {
   positive: 3600,
-  negative: -900,
-  immovable: -520,
+  negative: -620,
+  immovable: -320,
 };
 
 const ranks = [
@@ -532,9 +532,9 @@ function takeBreakableType(typeBag) {
 function makeBrickTypeBag(totalSlots) {
   const targetSlots = state.width < 420 ? 58 : state.width < 720 ? 62 : 64;
   const playableSlots = Math.min(totalSlots, targetSlots + randomInt(-2, 2));
-  const immovableCount = clamp(Math.round(playableSlots * 0.12), 3, 5);
+  const immovableCount = clamp(Math.round(playableSlots * 0.07), 2, 4);
   const breakableCount = playableSlots - immovableCount;
-  const positiveCount = Math.round(breakableCount * 0.58);
+  const positiveCount = Math.round(breakableCount * 0.74);
   const negativeCount = breakableCount - positiveCount;
   const positives = makeBudgetedTypes(positiveBrickTypes, positiveCount, scoreBudget.positive);
   const negatives = makeBudgetedTypes(negativeBrickTypes, negativeCount, scoreBudget.negative);

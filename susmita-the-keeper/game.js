@@ -105,7 +105,7 @@ const state = {
   fallPath: { left: 0, right: 0, top: 0, bottom: 0 },
   shake: 0,
   input: { left: false, right: false, pointer: false, pointerX: 0 },
-  susmita: { x: 0, y: 0, vx: 0, width: 116, height: 22, speed: 610 },
+  susmita: { x: 0, y: 0, vx: 0, width: 116, height: 22, speed: 670 },
   tamal: { x: 0, y: 0, free: false, falling: false, hug: 0 },
   ball: { x: 0, y: 0, vx: 0, vy: 0, speed: 0, horizontalTime: 0, radius: 11, attached: true },
   bricks: [],
@@ -394,7 +394,9 @@ function buildBricks() {
 
 function makeCageLayout(columns, side, unitWidth, gap, top, baseHeight) {
   const pocketWidth = columns <= 5 ? 2 : 2;
-  const pocketStart = clamp(Math.floor((columns - pocketWidth) / 2), 1, columns - pocketWidth - 1);
+  const minPocketStart = 1;
+  const maxPocketStart = Math.max(minPocketStart, columns - pocketWidth - 1);
+  const pocketStart = randomInt(minPocketStart, maxPocketStart);
   const pocketEnd = pocketStart + pocketWidth - 1;
   const left = side + pocketStart * (unitWidth + gap);
   const right = side + (pocketEnd + 1) * unitWidth + pocketEnd * gap;
@@ -643,8 +645,8 @@ function updateRush(dt) {
 }
 
 function currentSpeed() {
-  const base = (470 + Math.min(230, state.elapsed * 7.8)) * state.difficulty;
-  return state.rushTimer > 0 ? base * 1.56 : base;
+  const base = (520 + Math.min(245, state.elapsed * 8.4)) * state.difficulty;
+  return state.rushTimer > 0 ? base * 1.48 : base;
 }
 
 function updateSusmita(dt) {
@@ -652,7 +654,7 @@ function updateSusmita(dt) {
   if (state.input.left) target -= 1;
   if (state.input.right) target += 1;
 
-  const rushAssist = state.rushTimer > 0 ? 1.36 : 1;
+  const rushAssist = state.rushTimer > 0 ? 1.3 : 1;
   const maxSpeed = state.susmita.speed * rushAssist;
   let desiredVelocity = target * maxSpeed;
 
@@ -662,10 +664,10 @@ function updateSusmita(dt) {
       state.susmita.width / 2 + 12,
       state.width - state.susmita.width / 2 - 12,
     );
-    desiredVelocity = clamp((pointerTarget - state.susmita.x) * 10.5, -maxSpeed, maxSpeed);
+    desiredVelocity = clamp((pointerTarget - state.susmita.x) * 11.5, -maxSpeed, maxSpeed);
   }
 
-  const easing = target || state.input.pointer ? 15 : 20;
+  const easing = target || state.input.pointer ? 17 : 22;
   state.susmita.vx = lerp(state.susmita.vx, desiredVelocity, clamp(dt * easing, 0, 1));
   if (!target && !state.input.pointer && Math.abs(state.susmita.vx) < 6) {
     state.susmita.vx = 0;
@@ -742,7 +744,7 @@ function updateBall(dt) {
 function updateBallSpeed(dt, targetSpeed) {
   const ball = state.ball;
   const current = ball.speed || Math.hypot(ball.vx, ball.vy) || targetSpeed;
-  const ramp = targetSpeed > current ? 4.4 : 3.2;
+  const ramp = targetSpeed > current ? 5.6 : 4;
   ball.speed = lerp(current, targetSpeed, clamp(dt * ramp, 0, 1));
   return ball.speed;
 }
@@ -1035,7 +1037,7 @@ function updateParticles(dt) {
     particle.age += dt;
     particle.x += particle.vx * dt;
     particle.y += particle.vy * dt;
-    particle.vy += 260 * dt;
+    particle.vy += (isMobile() ? 420 : 320) * dt;
     return particle.age < particle.life;
   });
 }
@@ -1043,7 +1045,7 @@ function updateParticles(dt) {
 function updateFloatingText(dt) {
   state.floatingText = state.floatingText.filter((text) => {
     text.age += dt;
-    text.y -= 66 * dt;
+    text.y -= (isMobile() ? 92 : 78) * dt;
     return text.age < text.life;
   });
 }
@@ -1051,22 +1053,22 @@ function updateFloatingText(dt) {
 function burst(x, y, color, count) {
   for (let index = 0; index < count; index += 1) {
     const angle = random(0, Math.PI * 2);
-    const speed = random(95, 360);
+    const speed = isMobile() ? random(180, 560) : random(140, 440);
     state.particles.push({
       x,
       y,
       vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed - random(55, 165),
+      vy: Math.sin(angle) * speed - (isMobile() ? random(90, 230) : random(70, 190)),
       size: random(2, 5.5),
       age: 0,
-      life: random(0.24, 0.62),
+      life: isMobile() ? random(0.12, 0.32) : random(0.18, 0.46),
       color,
     });
   }
 }
 
 function addFloatingText(value, x, y, color) {
-  state.floatingText.push({ value, x, y, color, age: 0, life: 0.52 });
+  state.floatingText.push({ value, x, y, color, age: 0, life: isMobile() ? 0.34 : 0.44 });
 }
 
 let toastTimer = 0;

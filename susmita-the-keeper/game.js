@@ -228,9 +228,9 @@ function bindEvents() {
 }
 
 function resize() {
-  state.ratio = Math.min(window.devicePixelRatio || 1, 2);
   state.width = window.innerWidth;
   state.height = window.innerHeight;
+  state.ratio = Math.min(window.devicePixelRatio || 1, state.width < 760 ? 1.5 : 2);
   canvas.width = Math.floor(state.width * state.ratio);
   canvas.height = Math.floor(state.height * state.ratio);
   canvas.style.width = `${state.width}px`;
@@ -255,7 +255,7 @@ function resize() {
 }
 
 function makeStars() {
-  state.stars = Array.from({ length: 70 }, () => ({
+  state.stars = Array.from({ length: isMobile() ? 44 : 70 }, () => ({
     x: random(0, state.width),
     y: random(0, state.height),
     size: random(0.7, 2.4),
@@ -635,12 +635,25 @@ function launchBall() {
 }
 
 function loop(now) {
-  const dt = Math.min((now - state.last) / 1000 || 0, 0.025);
+  const dt = Math.min((now - state.last) / 1000 || 0, isMobile() ? 0.04 : 0.025);
   state.last = now;
 
-  if (state.running && !state.over) update(dt);
+  if (state.running && !state.over) {
+    runUpdateFrame(dt);
+  }
   draw();
   requestAnimationFrame(loop);
+}
+
+function runUpdateFrame(dt) {
+  const tick = isMobile() ? 1 / 90 : dt;
+  let remaining = dt;
+
+  while (remaining > 0) {
+    const step = Math.min(remaining, tick);
+    update(step);
+    remaining -= step;
+  }
 }
 
 function update(dt) {
@@ -736,7 +749,8 @@ function updateBall(dt) {
   const easedSpeed = updateBallSpeed(dt, speed);
   normalizeBallVelocity(easedSpeed);
   preventHorizontalStall(dt);
-  const steps = Math.max(1, Math.ceil((easedSpeed * dt) / 5));
+  const stepDistance = isMobile() ? 3.2 : 5;
+  const steps = Math.max(1, Math.ceil((easedSpeed * dt) / stepDistance));
   const stepDt = dt / steps;
 
   for (let step = 0; step < steps; step += 1) {
@@ -803,7 +817,8 @@ function preventHorizontalStall(dt) {
   const needsDownwardNudge = ball.horizontalTime > 0.26 && ball.y < state.susmita.y - 44;
   const direction = needsDownwardNudge ? 1 : ball.vy < 0 ? -1 : 1;
   const desiredVy = direction * minVertical;
-  ball.vy = lerp(ball.vy, desiredVy, clamp(dt * 5.5, 0.05, 0.24));
+  const correction = isMobile() ? clamp(dt * 4.4, 0, 0.14) : clamp(dt * 5.5, 0.05, 0.24);
+  ball.vy = lerp(ball.vy, desiredVy, correction);
 
   const xDirection = ball.vx < 0 ? -1 : 1;
   ball.vy = clamp(ball.vy, -speed * 0.88, speed * 0.88);
@@ -1505,10 +1520,11 @@ function drawBricks() {
         : 0.08;
     const textColor = brick.type.kind === "positive" ? "#111827" : palette.ink;
     const badgeColor = brick.type.kind === "positive" ? "rgba(17, 24, 39, 0.72)" : "rgba(255, 247, 235, 0.9)";
+    const shadowBlur = isMobile() ? (brick.support ? 5 : brick.immovable ? 4 : 2) : brick.support ? 18 : brick.immovable ? 12 : 6;
 
     ctx.save();
     ctx.shadowColor = brick.type.color;
-    ctx.shadowBlur = brick.support ? 18 : brick.immovable ? 12 : 6;
+    ctx.shadowBlur = shadowBlur;
     ctx.fillStyle = brick.type.color;
     ctx.globalAlpha = brick.immovable ? 0.92 : 0.88;
     ctx.beginPath();
@@ -1601,7 +1617,7 @@ function formatPoints(points) {
 function drawBall() {
   const ball = state.ball;
   ctx.save();
-  const glow = state.rushTimer > 0 ? 25 : 14;
+  const glow = state.rushTimer > 0 ? (isMobile() ? 12 : 25) : isMobile() ? 7 : 14;
   ctx.shadowColor = state.rushTimer > 0 ? palette.rose : palette.gold;
   ctx.shadowBlur = glow;
   drawHeart(ball.x, ball.y, ball.radius * 1.45, state.rushTimer > 0 ? palette.rose : palette.coral);

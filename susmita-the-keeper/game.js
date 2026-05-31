@@ -997,10 +997,11 @@ function rescueTamal() {
 function updateRescue(dt) {
   if (!state.tamal.falling) return;
 
-  const targetY = state.susmita.y - (isMobile() ? 56 : 72);
+  const targetY = getHugCharacterY();
+  const targetTamalX = state.width / 2 - getHugCharacterGap() / 2;
   state.tamal.y = lerp(state.tamal.y, targetY, clamp(dt * 1.9, 0, 1));
   state.susmita.x = lerp(state.susmita.x, state.width / 2, clamp(dt * 2.4, 0, 1));
-  state.tamal.x = lerp(state.tamal.x, state.susmita.x, clamp(dt * 2.1, 0, 1));
+  state.tamal.x = lerp(state.tamal.x, targetTamalX, clamp(dt * 2.1, 0, 1));
   state.tamal.hug = clamp(state.tamal.hug + dt * 0.65, 0, 1);
 
   if (Math.abs(state.tamal.y - targetY) < 3 && state.tamal.hug >= 1) {
@@ -1013,7 +1014,7 @@ function winGame() {
   state.won = true;
   state.over = true;
   state.running = false;
-  burst(state.width / 2, state.susmita.y - (isMobile() ? 56 : 72), palette.rose, 90);
+  burst(state.width / 2, getHugCharacterY(), palette.rose, 90);
   setTimeout(showResult, 1450);
 }
 
@@ -1219,8 +1220,10 @@ function drawSusmita() {
   }
 
   const hugOffset = state.tamal.hug * 26;
-  const susmitaX = x - (isMobile() ? 22 : 28) + hugOffset * 0.7;
-  const susmitaY = y - (isMobile() ? 44 : 58);
+  const baseSusmitaX = x - (isMobile() ? 22 : 28) + hugOffset * 0.7;
+  const sideBySide = clamp((state.tamal.hug - 0.28) / 0.72, 0, 1);
+  const susmitaX = lerp(baseSusmitaX, x + getHugCharacterGap() / 2, sideBySide);
+  const susmitaY = getHugCharacterY();
   drawSusmitaCharacter(susmitaX, susmitaY, state.tamal.hug);
 
   if (state.tamal.hug > 0.2) {
@@ -1290,10 +1293,10 @@ function drawHugLove(tamalX, tamalY, susmitaX, susmitaY, hug) {
   const pulse = Math.sin(performance.now() / 180) * 0.7;
   const scale = mobileScale();
   const shoulderX = 15 * scale;
-  const hugGap = 12 * scale;
+  const hugGap = getHugCharacterGap();
   const centerX = (tamalX + susmitaX) / 2;
-  const nearTamalX = lerp(tamalX, centerX + hugGap / 2, close);
-  const nearSusmitaX = lerp(susmitaX, centerX - hugGap / 2, close);
+  const nearTamalX = lerp(tamalX, centerX - hugGap / 2, close);
+  const nearSusmitaX = lerp(susmitaX, centerX + hugGap / 2, close);
   const tamalShoulderY = tamalY + 23 * scale;
   const susmitaShoulderY = susmitaY + 23 * scale;
   const armY = Math.max(tamalShoulderY, susmitaShoulderY) + 11 * scale + pulse;
@@ -1322,6 +1325,14 @@ function drawHugLove(tamalX, tamalY, susmitaX, susmitaY, hug) {
   }
 
   ctx.restore();
+}
+
+function getHugCharacterGap() {
+  return (isMobile() ? 52 : 60) * mobileScale();
+}
+
+function getHugCharacterY() {
+  return state.susmita.y - (isMobile() ? 44 : 58);
 }
 
 function drawHugArm(startX, startY, endX, endY, upperCurve, scale = 1) {

@@ -323,7 +323,7 @@ function buildBricks() {
   const top = Math.max(minTop, state.height * random(0.13, 0.15));
   const unitWidth = (state.width - side * 2 - gap * (columns - 1)) / columns;
   const baseHeight = isMobile()
-    ? clamp(state.height * random(0.028, 0.034), 20, 28)
+    ? clamp(state.height * random(0.028, 0.034), 22, 28)
     : clamp(state.height * random(0.036, 0.044), 28, 40);
   const bricks = [];
   const totalSlots = columns * rows;
@@ -381,7 +381,8 @@ function buildBricks() {
 
       const initiallyImmovable = type.kind === "immovable";
       const width = unitWidth * span + gap * (span - 1) + random(-3, 5);
-      const height = baseHeight * random(0.84, initiallyImmovable ? 0.98 : 1.12);
+      const heightScale = initiallyImmovable ? random(isMobile() ? 0.95 : 0.9, isMobile() ? 1.08 : 0.98) : random(0.84, 1.12);
+      const height = initiallyImmovable && isMobile() ? Math.max(22, baseHeight * heightScale) : baseHeight * heightScale;
       const x = side + col * (unitWidth + gap) + rowLean + random(-2.5, 2.5);
       const brickRect = {
         x: clamp(x, side, state.width - side - width),
@@ -582,7 +583,7 @@ function pickReadableFallback(pool, width) {
 function canLabelFitBrick(label, width) {
   if (!isMobile()) return true;
 
-  const maxWidth = width - 18;
+  const maxWidth = width - 24;
   ctx.save();
   ctx.font = "700 8px Inter, system-ui, sans-serif";
   const fits = ctx.measureText(label).width <= maxWidth;
@@ -1575,6 +1576,16 @@ function drawBricks() {
     ctx.roundRect(brick.x + 4, brick.y + 4, brick.width - 8, brick.height * 0.42, 6);
     ctx.fill();
 
+    if (brick.immovable) {
+      ctx.strokeStyle = "rgba(255, 247, 235, 0.62)";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 4]);
+      ctx.beginPath();
+      ctx.roundRect(brick.x + 3, brick.y + 3, brick.width - 6, brick.height - 6, 6);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
     ctx.shadowBlur = 0;
     ctx.fillStyle = textColor;
     ctx.textAlign = "center";
@@ -1598,16 +1609,6 @@ function drawBricks() {
       ctx.strokeText(points, cx, textLayout.pointY, textLayout.maxWidth);
     }
     ctx.fillText(points, cx, textLayout.pointY, textLayout.maxWidth);
-
-    if (brick.immovable) {
-      ctx.strokeStyle = "rgba(255, 247, 235, 0.58)";
-      ctx.lineWidth = 2;
-      ctx.setLineDash([5, 4]);
-      ctx.beginPath();
-      ctx.roundRect(brick.x + 4, brick.y + 4, brick.width - 8, brick.height - 8, 6);
-      ctx.stroke();
-      ctx.setLineDash([]);
-    }
 
     if (brick.maxHp > 1) {
       ctx.fillStyle = "rgba(17, 24, 39, 0.72)";
@@ -1636,16 +1637,17 @@ function pointFontSize(width, height) {
 }
 
 function getBrickTextLayout(brick) {
-  const maxWidth = brick.width - (isMobile() ? 12 : 10);
-  let labelSize = isMobile() ? 8 : labelFontSize(brick.type.label, brick.width);
-  let pointSize = isMobile() ? 7.8 : pointFontSize(brick.width, brick.height);
+  const textPadding = brick.immovable ? (isMobile() ? 18 : 16) : isMobile() ? 12 : 10;
+  const maxWidth = brick.width - textPadding;
+  let labelSize = isMobile() ? (brick.immovable ? 7.4 : 8) : labelFontSize(brick.type.label, brick.width);
+  let pointSize = isMobile() ? (brick.immovable ? 7.1 : 7.8) : pointFontSize(brick.width, brick.height);
 
   labelSize = fitTextSize(brick.type.label, maxWidth, labelSize, isMobile() ? 7 : 5.5, "700");
   pointSize = fitTextSize(formatPoints(brick.type.points), maxWidth, pointSize, isMobile() ? 6.5 : 6, "800");
 
-  let gap = isMobile() ? 2 : 4;
+  let gap = brick.immovable ? (isMobile() ? 1.5 : 3) : isMobile() ? 2 : 4;
   let totalHeight = labelSize + gap + pointSize;
-  const maxHeight = Math.max(14, brick.height - (isMobile() ? 5 : 7));
+  const maxHeight = Math.max(12, brick.height - (brick.immovable ? (isMobile() ? 8 : 10) : isMobile() ? 5 : 7));
 
   while (totalHeight > maxHeight && (labelSize > 6.2 || pointSize > 6.2)) {
     labelSize = Math.max(6.2, labelSize - 0.25);

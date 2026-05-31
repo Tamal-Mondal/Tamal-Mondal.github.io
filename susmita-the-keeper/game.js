@@ -83,6 +83,50 @@ const immovableBrickTypes = [
   { label: "Misread Text", points: -5, color: "#4b5563", detail: "One misread text should not decide the mood", kind: "immovable" },
 ];
 
+const mobilePositiveLabels = [
+  "Food",
+  "Flowers",
+  "Call",
+  "Hug",
+  "Pasta",
+  "Cooking",
+  "Momos",
+  "Movie",
+  "Sorry",
+  "Tea",
+  "Good Morning",
+  "Selfie",
+  "Gift",
+  "Coffee",
+  "Smile",
+  "Care",
+  "Trust",
+  "Laugh",
+  "Kiss",
+  "Peace",
+];
+
+const mobileImmovableLabels = [
+  "Distance",
+  "Silence",
+  "Ego",
+  "Assumption",
+  "Worry",
+  "Delay",
+  "Tired",
+  "Misread",
+  "Panic",
+  "Noise",
+  "Rush",
+  "Jealousy",
+  "Stubborn",
+  "Doubt",
+  "Stress",
+  "Fight",
+  "Busy",
+  "Mood Swing",
+];
+
 const brickTypes = [...positiveBrickTypes, ...negativeBrickTypes];
 
 const scoreBudget = {
@@ -569,7 +613,7 @@ function findReadableTypeIndex(typeBag, width, predicate) {
 function makeTypeReadableForWidth(type, width) {
   if (canLabelFitBrick(type.label, width)) return type;
 
-  const pool = type.kind === "immovable" ? immovableBrickTypes : positiveBrickTypes;
+  const pool = getFallbackLabelPool(type.kind);
   const fallback = pickReadableFallback(pool, width);
   return { ...type, label: fallback.label, color: fallback.color, detail: fallback.detail };
 }
@@ -591,6 +635,20 @@ function canLabelFitBrick(label, width) {
   return fits;
 }
 
+function getFallbackLabelPool(kind) {
+  if (!isMobile()) {
+    return kind === "immovable" ? immovableBrickTypes : positiveBrickTypes;
+  }
+
+  const source = kind === "immovable" ? immovableBrickTypes : positiveBrickTypes;
+  const labels = kind === "immovable" ? mobileImmovableLabels : mobilePositiveLabels;
+  return labels.map((label, index) => ({
+    ...source[index % source.length],
+    label,
+    kind,
+  }));
+}
+
 function makeBrickTypeBag(totalSlots) {
   const targetSlots = state.width < 420 ? 58 : state.width < 720 ? 62 : 64;
   const playableSlots = Math.min(totalSlots, targetSlots + randomInt(-2, 2));
@@ -604,12 +662,14 @@ function makeBrickTypeBag(totalSlots) {
 }
 
 function makeLowPenaltyTypes(pool, count) {
-  return shuffle(
+  const selected = shuffle(
     Array.from({ length: count }, () => ({
       ...pool[Math.floor(random(0, pool.length))],
       points: Math.random() < 0.62 ? -5 : -10,
     })),
   );
+
+  return applyMobileLabelCycle(selected, mobileImmovableLabels);
 }
 
 function makeBudgetedTypes(pool, count, totalPoints) {
@@ -627,7 +687,21 @@ function makeBudgetedTypes(pool, count, totalPoints) {
 
   balanceBudgetedPoints(selected, totalPoints, min, max, signs);
 
-  return shuffle(selected);
+  return shuffle(applyMobileLabelCycle(selected, mobilePositiveLabels));
+}
+
+function applyMobileLabelCycle(types, labels) {
+  if (!isMobile() || !types.length) return types;
+
+  const labelCycle = [];
+  while (labelCycle.length < types.length) {
+    labelCycle.push(...shuffle(labels));
+  }
+
+  return types.map((type, index) => ({
+    ...type,
+    label: labelCycle[index],
+  }));
 }
 
 function balanceBudgetedPoints(types, targetTotal, min, max, signs) {

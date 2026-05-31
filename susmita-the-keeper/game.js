@@ -1548,26 +1548,28 @@ function drawBricks() {
     ctx.fillStyle = textColor;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    const labelSize = fitTextSize(brick.type.label, brick.width - 10, labelFontSize(brick.type.label, brick.width), 5.5, "700");
-    ctx.font = `700 ${labelSize}px Inter, system-ui, sans-serif`;
-    if (brick.type.kind !== "positive") {
-      ctx.strokeStyle = "rgba(17, 24, 39, 0.42)";
-      ctx.lineWidth = Math.max(1.5, labelSize * 0.32);
-      ctx.strokeText(brick.type.label, cx, cy - 4);
-    }
-    ctx.fillText(brick.type.label, cx, cy - 4);
+    const textLayout = getBrickTextLayout(brick);
+    ctx.font = `700 ${textLayout.labelSize}px Inter, system-ui, sans-serif`;
+    textLayout.labelLines.forEach((line, index) => {
+      const lineY = textLayout.labelStartY + index * textLayout.lineHeight;
+      if (brick.type.kind !== "positive") {
+        ctx.strokeStyle = "rgba(17, 24, 39, 0.42)";
+        ctx.lineWidth = Math.max(1.4, textLayout.labelSize * 0.28);
+        ctx.strokeText(line, cx, lineY, textLayout.maxWidth);
+      }
+      ctx.fillStyle = textColor;
+      ctx.fillText(line, cx, lineY, textLayout.maxWidth);
+    });
 
-    ctx.fillStyle = badgeColor;
     const points = formatPoints(brick.type.points);
-    const pointSize = fitTextSize(points, brick.width - 12, pointFontSize(brick.width, brick.height), 6, "800");
-    ctx.font = `800 ${pointSize}px Inter, system-ui, sans-serif`;
-    const pointY = cy + Math.min(11, brick.height * 0.32);
+    ctx.fillStyle = badgeColor;
+    ctx.font = `800 ${textLayout.pointSize}px Inter, system-ui, sans-serif`;
     if (brick.type.kind !== "positive") {
       ctx.strokeStyle = "rgba(17, 24, 39, 0.5)";
-      ctx.lineWidth = Math.max(1.6, pointSize * 0.3);
-      ctx.strokeText(points, cx, pointY);
+      ctx.lineWidth = Math.max(1.5, textLayout.pointSize * 0.28);
+      ctx.strokeText(points, cx, textLayout.pointY, textLayout.maxWidth);
     }
-    ctx.fillText(points, cx, pointY);
+    ctx.fillText(points, cx, textLayout.pointY, textLayout.maxWidth);
 
     if (brick.immovable) {
       ctx.strokeStyle = "rgba(255, 247, 235, 0.58)";
@@ -1603,6 +1605,77 @@ function labelFontSize(label, width) {
 function pointFontSize(width, height) {
   if (width < 56 || height < 32) return 8;
   return 10;
+}
+
+function getBrickTextLayout(brick) {
+  const maxWidth = brick.width - (isMobile() ? 12 : 10);
+  let labelSize = isMobile() ? (brick.immovable ? 7.4 : 8.2) : labelFontSize(brick.type.label, brick.width);
+  let pointSize = isMobile() ? 7.8 : pointFontSize(brick.width, brick.height);
+  let labelLines = wrapBrickLabel(brick.type.label, maxWidth, labelSize);
+
+  if (isMobile() && labelLines.length > 1) {
+    labelSize = Math.min(labelSize, 7.5);
+    pointSize = 7;
+    labelLines = wrapBrickLabel(brick.type.label, maxWidth, labelSize);
+  }
+
+  labelSize = fitLinesSize(labelLines, maxWidth, labelSize, isMobile() ? 6.5 : 5.5, "700");
+  pointSize = fitTextSize(formatPoints(brick.type.points), maxWidth, pointSize, isMobile() ? 6.5 : 6, "800");
+
+  let lineHeight = labelLines.length > 1 ? labelSize * 0.92 : labelSize;
+  let gap = isMobile() ? 2 : 4;
+  let totalHeight = labelSize + (labelLines.length - 1) * lineHeight + gap + pointSize;
+  const maxHeight = Math.max(14, brick.height - (isMobile() ? 5 : 7));
+
+  while (totalHeight > maxHeight && (labelSize > 6.2 || pointSize > 6.2)) {
+    labelSize = Math.max(6.2, labelSize - 0.25);
+    pointSize = Math.max(6.2, pointSize - 0.25);
+    lineHeight = labelLines.length > 1 ? labelSize * 0.92 : labelSize;
+    gap = Math.max(1, gap - 0.05);
+    totalHeight = labelSize + (labelLines.length - 1) * lineHeight + gap + pointSize;
+  }
+
+  const cy = brick.y + brick.height / 2;
+  const labelStartY = cy - totalHeight / 2 + labelSize / 2;
+  const pointY = labelStartY + (labelLines.length - 1) * lineHeight + labelSize / 2 + gap + pointSize / 2;
+
+  return { labelLines, labelSize, lineHeight, pointSize, labelStartY, pointY, maxWidth };
+}
+
+function wrapBrickLabel(label, maxWidth, size) {
+  const words = label.split(" ");
+  if (words.length === 1) return [label];
+
+  ctx.font = `700 ${size}px Inter, system-ui, sans-serif`;
+  const lines = [];
+  let current = "";
+
+  words.forEach((word) => {
+    const candidate = current ? `${current} ${word}` : word;
+    if (current && ctx.measureText(candidate).width > maxWidth) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = candidate;
+    }
+  });
+
+  if (current) lines.push(current);
+  if (lines.length <= 2) return lines;
+
+  return [lines[0], lines.slice(1).join(" ")];
+}
+
+function fitLinesSize(lines, maxWidth, preferredSize, minSize, weight) {
+  let size = preferredSize;
+
+  while (size > minSize) {
+    ctx.font = `${weight} ${size}px Inter, system-ui, sans-serif`;
+    if (lines.every((line) => ctx.measureText(line).width <= maxWidth)) return size;
+    size -= 0.25;
+  }
+
+  return minSize;
 }
 
 function fitTextSize(text, maxWidth, preferredSize, minSize, weight) {

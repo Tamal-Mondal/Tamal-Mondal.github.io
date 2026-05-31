@@ -27,10 +27,8 @@ const ui = {
 const positiveBrickTypes = [
   { label: "Food Order", points: 100, color: "#b8f7a3", detail: "Food Fixes More Than Hunger", kind: "positive" },
   { label: "Flower", points: 100, color: "#ffc2dc", detail: "Small Gestures Still Bloom", kind: "positive" },
-  { label: "Good Call", points: 120, color: "#a9ddff", detail: "One Call Makes The Distance Smaller", kind: "positive" },
   { label: "Video Call", points: 140, color: "#a7f3ff", detail: "Seeing Each Other Makes Distance Softer", kind: "positive" },
   { label: "Ludo Night", points: 130, color: "#c7f4ff", detail: "A Little Game, A Lot Of Togetherness", kind: "positive" },
-  { label: "Cute Text", points: 90, color: "#ffd3a8", detail: "One Message Can Save The Whole Day", kind: "positive" },
   { label: "Long Hug", points: 160, color: "#d8c7ff", detail: "Some Arguments End Best Without More Words", kind: "positive" },
   { label: "White Sauce Pasta", points: 150, color: "#fff2c6", detail: "Comfort Food, Comfort Heart", kind: "positive" },
   { label: "Cooking Together", points: 160, color: "#d9f99d", detail: "Two People, One Kitchen, Many Memories", kind: "positive" },
@@ -38,6 +36,12 @@ const positiveBrickTypes = [
   { label: "Movie Plan", points: 110, color: "#b9f6d3", detail: "A Shared Screen, A Shared Mood", kind: "positive" },
   { label: "Sorry First", points: 140, color: "#fff0a8", detail: "Love Wins When Ego Steps Back", kind: "positive" },
   { label: "Tea Break", points: 80, color: "#cce7ff", detail: "A Pause Together Is Still Progress", kind: "positive" },
+  { label: "Good Morning Text", points: 120, color: "#ffd6a5", detail: "A Sweet Start Can Change The Whole Day", kind: "positive" },
+  { label: "Photo Share", points: 115, color: "#bae6fd", detail: "One Photo Makes The Day Feel Closer", kind: "positive" },
+  { label: "Holding Hands", points: 150, color: "#ddd6fe", detail: "A Quiet Touch Says We Are Okay", kind: "positive" },
+  { label: "Cute Selfie", points: 125, color: "#fbcfe8", detail: "A Small Picture, A Big Smile", kind: "positive" },
+  { label: "Little Gift", points: 135, color: "#fecaca", detail: "Small Surprises Carry Big Care", kind: "positive" },
+  { label: "Coffee Date", points: 145, color: "#fde68a", detail: "A Little Time Together Refills Everything", kind: "positive" },
 ];
 
 const negativeBrickTypes = [
@@ -50,7 +54,11 @@ const negativeBrickTypes = [
   { label: "Overthinking", points: -75, color: "#dc2626", detail: "Overthinking Turns Silence Into Noise", kind: "negative" },
   { label: "Distance", points: -100, color: "#b91c1c", detail: "Distance Is Harder On Heavy Days", kind: "negative" },
   { label: "Late Reply", points: -35, color: "#fb7185", detail: "Late Replies Need Trust To Stay Small", kind: "negative" },
-  { label: "Sleepy Fight", points: -60, color: "#e11d48", detail: "Sleepy Fights Should Wait For Morning", kind: "negative" },
+  { label: "Sleepy Night", points: -60, color: "#e11d48", detail: "Sleepy nights need softer words", kind: "negative" },
+  { label: "Work Stress", points: -45, color: "#ef4444", detail: "Work stress should not become distance", kind: "negative" },
+  { label: "Plan Cancel", points: -35, color: "#ff7b72", detail: "Cancelled plans need a little extra care", kind: "negative" },
+  { label: "Late Night Doubt", points: -50, color: "#dc2626", detail: "Late night doubts feel louder than they are", kind: "negative" },
+  { label: "Misread Text", points: -35, color: "#fb7185", detail: "One misread text should not decide the mood", kind: "negative" },
 ];
 
 const immovableBrickTypes = [
@@ -68,7 +76,11 @@ const immovableBrickTypes = [
   { label: "Overthinking", points: -10, color: "#3f3f46", detail: "Overthinking Turns Silence Into Noise", kind: "immovable" },
   { label: "Distance", points: -10, color: "#374151", detail: "Distance Is Harder On Heavy Days", kind: "immovable" },
   { label: "Late Reply", points: -5, color: "#52525b", detail: "Late Replies Need Trust To Stay Small", kind: "immovable" },
-  { label: "Sleepy Fight", points: -5, color: "#4b5563", detail: "Sleepy Fights Should Wait For Morning", kind: "immovable" },
+  { label: "Sleepy Night", points: -5, color: "#4b5563", detail: "Sleepy nights need softer words", kind: "immovable" },
+  { label: "Work Stress", points: -10, color: "#57534e", detail: "Work stress should not become distance", kind: "immovable" },
+  { label: "Plan Cancel", points: -5, color: "#52525b", detail: "Cancelled plans need a little extra care", kind: "immovable" },
+  { label: "Late Night Doubt", points: -10, color: "#3f3f46", detail: "Late night doubts feel louder than they are", kind: "immovable" },
+  { label: "Misread Text", points: -5, color: "#4b5563", detail: "One misread text should not decide the mood", kind: "immovable" },
 ];
 
 const brickTypes = [...positiveBrickTypes, ...negativeBrickTypes];

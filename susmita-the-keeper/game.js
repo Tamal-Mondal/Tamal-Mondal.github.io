@@ -54,19 +54,29 @@ const negativeBrickTypes = [
 ];
 
 const immovableBrickTypes = [
-  { label: "Ego Wall", points: -80, color: "#4b5563", detail: "Ego Blocks The Way Until Someone Chooses Softness", kind: "immovable" },
-  { label: "Silence", points: -100, color: "#374151", detail: "Silence Can Feel Louder Than A Fight", kind: "immovable" },
-  { label: "Assumption", points: -90, color: "#52525b", detail: "Assumptions Create Stories Love Never Wrote", kind: "immovable" },
-  { label: "Trust Wobble", points: -150, color: "#3f3f46", detail: "Trust Needs Care, Not Panic", kind: "immovable" },
-  { label: "Trust Issues", points: -140, color: "#57534e", detail: "Trust Asks For Patience, Honesty, And Repair", kind: "immovable" },
+  { label: "Ego Wall", points: -10, color: "#4b5563", detail: "Ego Blocks The Way Until Someone Chooses Softness", kind: "immovable" },
+  { label: "Silence", points: -10, color: "#374151", detail: "Silence Can Feel Louder Than A Fight", kind: "immovable" },
+  { label: "Assumption", points: -10, color: "#52525b", detail: "Assumptions Create Stories Love Never Wrote", kind: "immovable" },
+  { label: "Trust Wobble", points: -10, color: "#3f3f46", detail: "Trust Needs Care, Not Panic", kind: "immovable" },
+  { label: "Trust Issues", points: -10, color: "#57534e", detail: "Trust Asks For Patience, Honesty, And Repair", kind: "immovable" },
+  { label: "Low Battery", points: -5, color: "#4b5563", detail: "Low Energy Asks For Extra Care", kind: "immovable" },
+  { label: "No Data", points: -5, color: "#374151", detail: "No Signal Makes Patience Do The Talking", kind: "immovable" },
+  { label: "Missed Call", points: -5, color: "#52525b", detail: "One Missed Call Should Not Become A Whole Story", kind: "immovable" },
+  { label: "Busy Day", points: -5, color: "#4b5563", detail: "Busy Days Still Need Tiny Check-Ins", kind: "immovable" },
+  { label: "Mood Off", points: -5, color: "#3f3f46", detail: "Bad Moods Need Softness, Not Sparks", kind: "immovable" },
+  { label: "Tiny Fight", points: -10, color: "#57534e", detail: "Tiny Fights Feel Bigger When Both Are Tired", kind: "immovable" },
+  { label: "Overthinking", points: -10, color: "#3f3f46", detail: "Overthinking Turns Silence Into Noise", kind: "immovable" },
+  { label: "Distance", points: -10, color: "#374151", detail: "Distance Is Harder On Heavy Days", kind: "immovable" },
+  { label: "Late Reply", points: -5, color: "#52525b", detail: "Late Replies Need Trust To Stay Small", kind: "immovable" },
+  { label: "Sleepy Fight", points: -5, color: "#4b5563", detail: "Sleepy Fights Should Wait For Morning", kind: "immovable" },
 ];
 
 const brickTypes = [...positiveBrickTypes, ...negativeBrickTypes];
 
 const scoreBudget = {
   positive: 3600,
-  negative: -620,
-  immovable: -320,
+  negative: 0,
+  immovable: -60,
 };
 
 const ranks = [
@@ -483,17 +493,15 @@ function takeTypeForSlot(typeBag, { row, pathSlot, cageRequired, sideRisk, nearC
 
     const roll = Math.random();
     const balancedSideType =
-      roll < 0.68
+      roll < 0.78
         ? takeTypeByKinds(typeBag, ["positive"])
-        : roll < 0.92
-          ? takeTypeByKinds(typeBag, ["negative"])
-          : takeTypeByKinds(typeBag, ["immovable"]);
+        : takeTypeByKinds(typeBag, ["immovable"]);
 
     if (balancedSideType) return balancedSideType;
   }
 
   if (nearCenter && row > 2 && Math.random() < 0.34) {
-    const centerProblem = takeTypeByKinds(typeBag, ["negative", "immovable"]);
+    const centerProblem = takeTypeByKinds(typeBag, ["immovable"]);
 
     if (centerProblem) return centerProblem;
   }
@@ -529,29 +537,35 @@ function takeTopRewardType(typeBag) {
 }
 
 function takeBreakableType(typeBag) {
-  const index = typeBag.findIndex((type) => type.kind !== "immovable");
+  const index = typeBag.findIndex((type) => type.kind === "positive");
 
   if (index >= 0) {
     const [type] = typeBag.splice(index, 1);
     return type;
   }
 
-  const pool = Math.random() < 0.58 ? positiveBrickTypes : negativeBrickTypes;
-  return pool[Math.floor(random(0, pool.length))];
+  return { ...positiveBrickTypes[Math.floor(random(0, positiveBrickTypes.length))] };
 }
 
 function makeBrickTypeBag(totalSlots) {
   const targetSlots = state.width < 420 ? 58 : state.width < 720 ? 62 : 64;
   const playableSlots = Math.min(totalSlots, targetSlots + randomInt(-2, 2));
-  const immovableCount = clamp(Math.round(playableSlots * 0.07), 2, 4);
+  const immovableCount = clamp(Math.round(playableSlots * 0.1), 4, 7);
   const breakableCount = playableSlots - immovableCount;
-  const positiveCount = Math.round(breakableCount * 0.74);
-  const negativeCount = breakableCount - positiveCount;
+  const positiveCount = breakableCount;
   const positives = makeBudgetedTypes(positiveBrickTypes, positiveCount, scoreBudget.positive);
-  const negatives = makeBudgetedTypes(negativeBrickTypes, negativeCount, scoreBudget.negative);
-  const immovables = makeBudgetedTypes(immovableBrickTypes, immovableCount, scoreBudget.immovable);
+  const immovables = makeLowPenaltyTypes(immovableBrickTypes, immovableCount);
 
-  return shuffle([...positives, ...negatives, ...immovables]);
+  return shuffle([...positives, ...immovables]);
+}
+
+function makeLowPenaltyTypes(pool, count) {
+  return shuffle(
+    Array.from({ length: count }, () => ({
+      ...pool[Math.floor(random(0, pool.length))],
+      points: Math.random() < 0.62 ? -5 : -10,
+    })),
+  );
 }
 
 function makeBudgetedTypes(pool, count, totalPoints) {

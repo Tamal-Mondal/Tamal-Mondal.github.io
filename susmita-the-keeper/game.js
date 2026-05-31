@@ -105,7 +105,7 @@ const state = {
   fallPath: { left: 0, right: 0, top: 0, bottom: 0 },
   shake: 0,
   input: { left: false, right: false, pointer: false, pointerX: 0 },
-  susmita: { x: 0, y: 0, vx: 0, width: 116, height: 22, speed: 560 },
+  susmita: { x: 0, y: 0, vx: 0, width: 116, height: 22, speed: 610 },
   tamal: { x: 0, y: 0, free: false, falling: false, hug: 0 },
   ball: { x: 0, y: 0, vx: 0, vy: 0, speed: 0, horizontalTime: 0, radius: 11, attached: true },
   bricks: [],
@@ -643,8 +643,8 @@ function updateRush(dt) {
 }
 
 function currentSpeed() {
-  const base = (435 + Math.min(215, state.elapsed * 7.4)) * state.difficulty;
-  return state.rushTimer > 0 ? base * 1.62 : base;
+  const base = (470 + Math.min(230, state.elapsed * 7.8)) * state.difficulty;
+  return state.rushTimer > 0 ? base * 1.56 : base;
 }
 
 function updateSusmita(dt) {
@@ -652,7 +652,7 @@ function updateSusmita(dt) {
   if (state.input.left) target -= 1;
   if (state.input.right) target += 1;
 
-  const rushAssist = state.rushTimer > 0 ? 1.4 : 1;
+  const rushAssist = state.rushTimer > 0 ? 1.36 : 1;
   const maxSpeed = state.susmita.speed * rushAssist;
   let desiredVelocity = target * maxSpeed;
 
@@ -662,10 +662,10 @@ function updateSusmita(dt) {
       state.susmita.width / 2 + 12,
       state.width - state.susmita.width / 2 - 12,
     );
-    desiredVelocity = clamp((pointerTarget - state.susmita.x) * 9.5, -maxSpeed, maxSpeed);
+    desiredVelocity = clamp((pointerTarget - state.susmita.x) * 10.5, -maxSpeed, maxSpeed);
   }
 
-  const easing = target || state.input.pointer ? 13.5 : 18;
+  const easing = target || state.input.pointer ? 15 : 20;
   state.susmita.vx = lerp(state.susmita.vx, desiredVelocity, clamp(dt * easing, 0, 1));
   if (!target && !state.input.pointer && Math.abs(state.susmita.vx) < 6) {
     state.susmita.vx = 0;
@@ -742,7 +742,7 @@ function updateBall(dt) {
 function updateBallSpeed(dt, targetSpeed) {
   const ball = state.ball;
   const current = ball.speed || Math.hypot(ball.vx, ball.vy) || targetSpeed;
-  const ramp = targetSpeed > current ? 3.2 : 2.5;
+  const ramp = targetSpeed > current ? 4.4 : 3.2;
   ball.speed = lerp(current, targetSpeed, clamp(dt * ramp, 0, 1));
   return ball.speed;
 }
@@ -1035,7 +1035,7 @@ function updateParticles(dt) {
     particle.age += dt;
     particle.x += particle.vx * dt;
     particle.y += particle.vy * dt;
-    particle.vy += 190 * dt;
+    particle.vy += 260 * dt;
     return particle.age < particle.life;
   });
 }
@@ -1043,7 +1043,7 @@ function updateParticles(dt) {
 function updateFloatingText(dt) {
   state.floatingText = state.floatingText.filter((text) => {
     text.age += dt;
-    text.y -= 42 * dt;
+    text.y -= 66 * dt;
     return text.age < text.life;
   });
 }
@@ -1051,22 +1051,22 @@ function updateFloatingText(dt) {
 function burst(x, y, color, count) {
   for (let index = 0; index < count; index += 1) {
     const angle = random(0, Math.PI * 2);
-    const speed = random(46, 240);
+    const speed = random(95, 360);
     state.particles.push({
       x,
       y,
       vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed - random(30, 130),
+      vy: Math.sin(angle) * speed - random(55, 165),
       size: random(2, 5.5),
       age: 0,
-      life: random(0.45, 1.15),
+      life: random(0.24, 0.62),
       color,
     });
   }
 }
 
 function addFloatingText(value, x, y, color) {
-  state.floatingText.push({ value, x, y, color, age: 0, life: 0.8 });
+  state.floatingText.push({ value, x, y, color, age: 0, life: 0.52 });
 }
 
 let toastTimer = 0;

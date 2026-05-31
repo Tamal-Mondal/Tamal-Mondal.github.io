@@ -693,7 +693,9 @@ function updateRush(dt) {
 }
 
 function currentSpeed() {
-  const base = (520 + Math.min(245, state.elapsed * 8.4)) * state.difficulty;
+  const startSpeed = isMobile() ? 470 : 520;
+  const growth = isMobile() ? 9.6 : 8.4;
+  const base = (startSpeed + Math.min(245, state.elapsed * growth)) * state.difficulty;
   return state.rushTimer > 0 ? base * 1.48 : base;
 }
 
